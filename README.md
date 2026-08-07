@@ -39,10 +39,8 @@ src/
 ## Deployment
 
 Deployed on [Vercel](https://vercel.com/) (Vite preset, no extra config
-needed). Deployed manually via `vercel --prod` — auto-deploy on push isn't
-wired up yet, since the Vercel account has no GitHub login connection.
-To enable it: connect GitHub under Vercel account settings → Login
-Connections, then link the Git repo in the project's Settings → Git.
+needed). The Vercel project is connected to this GitHub repo — every push
+to `main` triggers an automatic production deployment.
 
 ## Contact
 
