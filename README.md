@@ -4,7 +4,7 @@ Personal portfolio for **Dileep Kumar Panchumarthi**, a Full Stack & GenAI
 developer available for freelance work — end-to-end websites, web apps, and
 AI-powered features (RAG, agents, LLM integrations).
 
-**Live site:** _(add your Vercel URL here after deploying)_
+**Live site:** https://dileep-portfolio-theta.vercel.app
 
 ## Tech Stack
 
@@ -38,8 +38,11 @@ src/
 
 ## Deployment
 
-Deployed on [Vercel](https://vercel.com/). Pushing to `main` triggers an
-automatic build and deploy (Vite preset, no extra config needed).
+Deployed on [Vercel](https://vercel.com/) (Vite preset, no extra config
+needed). Deployed manually via `vercel --prod` — auto-deploy on push isn't
+wired up yet, since the Vercel account has no GitHub login connection.
+To enable it: connect GitHub under Vercel account settings → Login
+Connections, then link the Git repo in the project's Settings → Git.
 
 ## Contact
 
