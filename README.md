@@ -4,7 +4,7 @@ Personal portfolio for **Dileep Kumar Panchumarthi**, a Full Stack & GenAI
 developer available for freelance work — end-to-end websites, web apps, and
 AI-powered features (RAG, agents, LLM integrations).
 
-**Live site:** https://dileep-portfolio-theta.vercel.app
+**Live site:** https://dileepkumar-dev.vercel.app
 
 ## Tech Stack
 
