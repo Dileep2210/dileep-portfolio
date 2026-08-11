@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Download, Menu, X } from "lucide-react";
 import { navLinks, profile } from "../data/portfolio";
 import { useActiveSection } from "../hooks/useActiveSection";
 import Magnetic from "./Magnetic";
@@ -45,7 +45,7 @@ export default function Navbar() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-1 rounded-full glass px-2 py-2 md:flex">
+        <nav className="hidden items-center gap-1 rounded-full glass px-2 py-2 lg:flex">
           {navLinks.map((link) => {
             const isActive = activeId === link.href.slice(1);
             return (
@@ -69,7 +69,15 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 lg:flex">
+          <a
+            href={profile.resumeUrl}
+            download
+            className="flex items-center gap-1.5 rounded-full glass px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30"
+          >
+            <Download size={15} />
+            Resume
+          </a>
           <Magnetic strength={0.4}>
             <a
               href={`mailto:${profile.email}`}
@@ -83,7 +91,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="glass rounded-full p-2 text-white md:hidden"
+          className="glass rounded-full p-2 text-white lg:hidden"
           aria-label="Toggle menu"
         >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -97,7 +105,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="mx-6 mt-3 flex flex-col gap-1 rounded-2xl glass p-3 md:hidden"
+            className="mx-6 mt-3 flex flex-col gap-1 rounded-2xl glass p-3 lg:hidden"
           >
             {navLinks.map((link) => (
               <a
@@ -114,9 +122,18 @@ export default function Navbar() {
               </a>
             ))}
             <a
+              href={profile.resumeUrl}
+              download
+              onClick={() => setMenuOpen(false)}
+              className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-3 text-center text-sm font-medium text-white"
+            >
+              <Download size={15} />
+              Resume
+            </a>
+            <a
               href={`mailto:${profile.email}`}
               onClick={() => setMenuOpen(false)}
-              className="mt-1 rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-ink"
+              className="rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-ink"
             >
               Let's talk
             </a>

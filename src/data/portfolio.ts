@@ -102,6 +102,15 @@ export type Project = {
   tags: string[];
   highlights: string[];
   isDemo?: boolean;
+  caseStudy?: string;
+};
+
+export type Testimonial = {
+  quote: string;
+  name: string;
+  role: string;
+  avatar?: string;
+  isSample?: boolean;
 };
 
 export const profile = {
@@ -124,14 +133,16 @@ export const profile = {
   ],
   email: "dileepfreelancer22@gmail.com",
   location: "India",
-  resumeUrl: "#",
+  // Drop your actual resume PDF into /public/resume.pdf — this path just points there.
+  resumeUrl: "/resume.pdf",
 };
 
 export const trustPoints: string[] = [
-  "Solo freelancer — direct communication, no middlemen",
+  "Direct communication — you work with me, not an account manager",
   "Clear scope & timeline agreed before any code is written",
   "Post-launch support included, not an extra line item",
-  "Remote-friendly — happy to work across timezones",
+  "Based in India (IST) — flexible hours, happy to sync with your timezone",
+  "Actively taking on new freelance projects right now",
 ];
 
 export const socialLinks: SocialLink[] = [
@@ -252,6 +263,8 @@ export const projects: Project[] = [
       "29 calculators across 7 categories",
       "Monetized with Google AdSense",
     ],
+    caseStudy:
+      "Built this after noticing how many \"free calculator\" sites bury the actual tool under pop-ups and slow ad networks. The key decision was keeping every calculation client-side — no backend round-trip for a BMI or EMI result — so it feels instant even on a slow connection. Organizing 29 tools into 7 clear categories (instead of one long list) was the main UX challenge, solved with a searchable, filterable grid. It's been live and earning passive ad revenue since launch, with effectively zero ongoing maintenance.",
   },
   {
     name: "GoVastra",
@@ -265,6 +278,8 @@ export const projects: Project[] = [
       "Full storefront: auth, cart, wishlist, checkout",
       "Real payments via Razorpay integration",
     ],
+    caseStudy:
+      "GoVastra needed to feel like a boutique, not a generic e-commerce template, while still handling real inventory and payments reliably. The main decision was building a custom, editorial-style storefront — typography-led, image-forward — instead of reaching for an off-the-shelf theme, so the brand actually reads as premium. Wiring Razorpay into checkout correctly, with payment verification handled server-side rather than trusted from the client, was the trickiest technical piece — a naive version of that is a common e-commerce security mistake. It's a real, operating store today, not a demo.",
   },
   {
     name: "DocsQA",
@@ -295,6 +310,12 @@ export const projects: Project[] = [
     isDemo: true,
   },
 ];
+
+// Empty for now — the Testimonials section hides itself automatically when
+// this array is empty. Add your first real review here once you have one,
+// e.g.:
+// { quote: "...", name: "Client Name", role: "Role, Company" }
+export const testimonials: Testimonial[] = [];
 
 export const services: Service[] = [
   {

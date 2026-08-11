@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, CheckCircle2, Copy, Mail } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, Mail } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import SectionHeading from "./SectionHeading";
+import ContactForm from "./ContactForm";
 import { profile, socialLinks, trustPoints } from "../data/portfolio";
 
 const icons = { github: FaGithub, linkedin: FaLinkedin, mail: Mail };
@@ -26,7 +27,7 @@ export default function Contact() {
         <SectionHeading
           eyebrow="Contact"
           title="Let's build your next project"
-          description="Open for freelance work — websites, web apps and AI features. The fastest way to reach me is email or LinkedIn."
+          description="Open for freelance work — websites, web apps and AI features. The fastest way to reach me is the form below, email, or LinkedIn."
           align="center"
         />
 
@@ -35,7 +36,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6 }}
-          className="glass relative mx-auto mt-14 max-w-3xl overflow-hidden rounded-3xl p-10 text-center"
+          className="glass relative mx-auto mt-14 max-w-2xl overflow-hidden rounded-3xl p-8 sm:p-10"
         >
           <div className="animate-blob absolute -left-20 -top-20 h-64 w-64 rounded-full bg-violet/20 blur-3xl" />
           <div
@@ -43,33 +44,51 @@ export default function Contact() {
             style={{ animationDelay: "-9s" }}
           />
 
-          <p className="relative font-display text-2xl font-semibold text-white sm:text-3xl">
+          <p className="relative text-center font-display text-2xl font-semibold text-white sm:text-3xl">
             Have a project in mind?
           </p>
-          <p className="relative mx-auto mt-3 max-w-md text-mist">
+          <p className="relative mx-auto mt-3 max-w-md text-center text-mist">
             Send a note and I'll get back to you within a day — happy to talk
             about your project, big or small.
           </p>
 
-          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="relative mt-8">
+            <ContactForm />
+          </div>
+
+          <div className="relative mt-8 flex items-center gap-3 text-xs text-mist">
+            <span className="h-px flex-1 bg-border" />
+            Prefer email?
+            <span className="h-px flex-1 bg-border" />
+          </div>
+
+          <div className="relative mt-5 flex flex-wrap items-center justify-center gap-3">
             <a
               href={`mailto:${profile.email}`}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 transition-transform duration-300 hover:scale-105"
+              className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-border px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
             >
-              <Mail size={16} />
+              <Mail size={15} />
               {profile.email}
             </a>
             <button
               type="button"
               onClick={handleCopy}
-              className="inline-flex items-center gap-2 rounded-full glass px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/30"
+              className="inline-flex items-center gap-2 rounded-full glass px-4 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
             >
-              {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+              {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
               {copied ? "Copied" : "Copy"}
             </button>
+            <a
+              href={profile.resumeUrl}
+              download
+              className="inline-flex items-center gap-2 rounded-full glass px-4 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
+            >
+              <Download size={15} />
+              Resume
+            </a>
           </div>
 
-          <div className="relative mt-8 flex items-center justify-center gap-3">
+          <div className="relative mt-6 flex items-center justify-center gap-3">
             {socialLinks.map((social) => {
               const Icon = icons[social.icon];
               return (
@@ -79,9 +98,9 @@ export default function Contact() {
                   target={social.icon === "mail" ? undefined : "_blank"}
                   rel="noreferrer"
                   aria-label={social.label}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-mist transition-all duration-300 hover:-translate-y-1 hover:text-white hover:shadow-lg hover:shadow-violet/20"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-mist transition-all duration-300 hover:-translate-y-1 hover:text-white hover:shadow-lg hover:shadow-violet/20"
                 >
-                  <Icon size={18} />
+                  <Icon size={16} />
                 </a>
               );
             })}

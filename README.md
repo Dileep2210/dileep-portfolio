@@ -30,11 +30,28 @@ npm run lint       # run oxlint
 ```
 src/
   data/portfolio.ts   # all site content — profile, tech stack, projects,
-                       # services, learning topics — edit this to update
-                       # the site without touching component code
+                       # services, learning topics, testimonials — edit
+                       # this to update the site without touching layout
   components/         # one component per section (Hero, About, Projects, …)
   hooks/               # scroll-spy + smooth-scroll hooks
 ```
+
+## Setup still needed
+
+Two things are wired up but need your own values before they fully work:
+
+1. **Resume download** — the nav and Contact section both link to
+   `/resume.pdf`. Drop your actual resume PDF into `public/resume.pdf`
+   (create the file with that exact name) and both buttons work immediately.
+2. **Contact form** — sign up free at [formspree.io](https://formspree.io),
+   create a form, and set `VITE_FORMSPREE_ID` to its ID — either in a local
+   `.env` file (copy `.env.example`) for dev, or in your Vercel project's
+   Environment Variables for production. Until set, the form shows a
+   friendly "email me directly" fallback instead of failing silently.
+
+**Testimonials** — the section hides itself automatically while
+`testimonials` in `portfolio.ts` is empty. Add a real quote there once you
+have one; no layout changes needed.
 
 ## Deployment
 
