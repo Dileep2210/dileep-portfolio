@@ -10,7 +10,7 @@ export default function Projects() {
         <SectionHeading
           eyebrow="Selected Work"
           title="Live projects, built solo end to end"
-          description="Two production apps I designed, built and shipped by myself — from idea to a real, live URL. Proof I can take a freelance project the whole way."
+          description="Production apps I designed, built and shipped by myself — from idea to a real, live URL. Proof I can take a freelance project the whole way."
         />
 
         <div className="mt-14 grid gap-8 lg:grid-cols-2">
@@ -24,9 +24,15 @@ export default function Projects() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.6, delay: i * 0.12 }}
-              className="group relative overflow-hidden rounded-3xl border border-border bg-surface/60 transition-all duration-300 hover:-translate-y-1.5 hover:border-violet/40"
+              className={`group relative overflow-hidden rounded-3xl border border-border bg-surface/60 transition-all duration-300 hover:-translate-y-1.5 hover:border-violet/40 ${
+                project.featured ? "lg:col-span-2" : ""
+              }`}
             >
-              <div className="relative aspect-[16/10] overflow-hidden border-b border-border">
+              <div
+                className={`relative overflow-hidden border-b border-border ${
+                  project.featured ? "aspect-[21/9]" : "aspect-[16/10]"
+                }`}
+              >
                 <img
                   src={project.image}
                   alt={`${project.name} preview`}

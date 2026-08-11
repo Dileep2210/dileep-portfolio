@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import calculatorCartImg from "../assets/proj-calculatorcart.webp";
 import govastraImg from "../assets/proj-govastra.webp";
+import docsQaImg from "../assets/proj-docsqa.webp";
 import {
   SiReact,
   SiTypescript,
@@ -99,6 +100,7 @@ export type Project = {
   url: string;
   tags: string[];
   highlights: string[];
+  featured?: boolean;
 };
 
 export const profile = {
@@ -265,6 +267,21 @@ export const projects: Project[] = [
       "Built-in live chat for customer support",
       "Light/dark theme with persisted preference",
     ],
+  },
+  {
+    name: "DocsQA",
+    tagline: "RAG chatbot for your documents",
+    description:
+      "Upload a PDF or text file and ask questions grounded in its actual content — every answer cites the exact chunk and page it came from, not a guess.",
+    image: docsQaImg,
+    url: "https://docsqa-five.vercel.app/",
+    tags: ["React", "FastAPI", "LangChain", "Gemini", "ChromaDB"],
+    highlights: [
+      "Inline citations linked to the exact source chunk & page",
+      "Structured, schema-enforced answers — not freeform text parsing",
+      "Token-based chunking with per-page metadata for accurate retrieval",
+    ],
+    featured: true,
   },
 ];
 
