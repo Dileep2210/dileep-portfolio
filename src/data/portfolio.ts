@@ -10,6 +10,7 @@ import {
 import calculatorCartImg from "../assets/proj-calculatorcart.webp";
 import govastraImg from "../assets/proj-govastra.webp";
 import docsQaImg from "../assets/proj-docsqa.webp";
+import fieldnoteImg from "../assets/proj-fieldnote.webp";
 import {
   SiReact,
   SiTypescript,
@@ -100,7 +101,7 @@ export type Project = {
   url: string;
   tags: string[];
   highlights: string[];
-  featured?: boolean;
+  isDemo?: boolean;
 };
 
 export const profile = {
@@ -243,13 +244,12 @@ export const projects: Project[] = [
     name: "Calculator Cart",
     tagline: "30+ free online calculators",
     description:
-      "A fast, ad-supported utility site with 29 calculators across 7 categories — EMI, SIP, GST, loans, BMI, age, percentage and more. No sign-up, no clutter, just instant answers.",
+      "29 free calculators across 7 categories — EMI, SIP, GST, BMI and more. No sign-up, ad-supported.",
     image: calculatorCartImg,
     url: "https://calculatorcart.com/",
     tags: ["React", "Vite", "SEO", "Google AdSense"],
     highlights: [
       "29 calculators across 7 categories",
-      "Search + category filtering",
       "Monetized with Google AdSense",
     ],
   },
@@ -257,31 +257,42 @@ export const projects: Project[] = [
     name: "GoVastra",
     tagline: "Premium Indian saree e-commerce",
     description:
-      "An editorial-style storefront for handwoven pattu and cotton sarees — full shopping experience with auth, cart, wishlist, live chat and a light/dark theme, built solo end to end.",
+      "Editorial-style storefront for handwoven sarees — full shopping experience with auth, cart, wishlist and Razorpay payments.",
     image: govastraImg,
     url: "https://govastra.com/",
-    tags: ["React", "Vite", "Auth & Cart", "Wishlist", "Razorpay", "Live Chat"],
+    tags: ["React", "Vite", "Auth & Cart", "Razorpay", "Live Chat"],
     highlights: [
-      "Full storefront: auth, cart, wishlist, checkout flow",
+      "Full storefront: auth, cart, wishlist, checkout",
       "Real payments via Razorpay integration",
-      "Built-in live chat for customer support",
-      "Light/dark theme with persisted preference",
     ],
   },
   {
     name: "DocsQA",
     tagline: "RAG chatbot for your documents",
     description:
-      "Upload a PDF or text file and ask questions grounded in its actual content — every answer cites the exact chunk and page it came from, not a guess.",
+      "Upload a PDF or text file, ask questions, get answers grounded in the content — every claim cites the exact chunk and page it came from.",
     image: docsQaImg,
     url: "https://docsqa-five.vercel.app/",
     tags: ["React", "FastAPI", "LangChain", "Gemini", "ChromaDB"],
     highlights: [
-      "Inline citations linked to the exact source chunk & page",
-      "Structured, schema-enforced answers — not freeform text parsing",
-      "Token-based chunking with per-page metadata for accurate retrieval",
+      "Inline citations linked to source chunk & page",
+      "Schema-enforced answers, not freeform parsing",
     ],
-    featured: true,
+    isDemo: true,
+  },
+  {
+    name: "Fieldnote",
+    tagline: "AI research agent",
+    description:
+      "Give it a topic — it plans sub-questions, searches the live web, verifies its own evidence, and writes a cited report end to end, no human steering the middle steps.",
+    image: fieldnoteImg,
+    url: "https://fieldnote-ai-research-agent.vercel.app/",
+    tags: ["LangGraph", "Gemini", "FastAPI", "React"],
+    highlights: [
+      "Multi-step agent: plan → search → verify → write",
+      "Self-corrects and retries when evidence is thin",
+    ],
+    isDemo: true,
   },
 ];
 
