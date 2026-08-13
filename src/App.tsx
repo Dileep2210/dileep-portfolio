@@ -10,7 +10,6 @@ import Projects from "./components/Projects";
 import Testimonials from "./components/Testimonials";
 import Services from "./components/Services";
 import TechStack from "./components/TechStack";
-import Learning from "./components/Learning";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
@@ -59,7 +58,6 @@ function App() {
         <Testimonials />
         <Services />
         <TechStack />
-        <Learning />
         <Contact />
       </motion.main>
       <Footer />

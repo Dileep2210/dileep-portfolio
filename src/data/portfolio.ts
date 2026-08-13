@@ -162,7 +162,6 @@ export const navLinks: NavLink[] = [
   { label: "Work", href: "#work" },
   { label: "Services", href: "#services" },
   { label: "Stack", href: "#stack" },
-  { label: "Learning", href: "#learning" },
   { label: "Contact", href: "#contact" },
 ];
 
