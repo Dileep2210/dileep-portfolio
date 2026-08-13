@@ -11,6 +11,7 @@ import calculatorCartImg from "../assets/proj-calculatorcart.webp";
 import govastraImg from "../assets/proj-govastra.webp";
 import docsQaImg from "../assets/proj-docsqa.webp";
 import fieldnoteImg from "../assets/proj-fieldnote.webp";
+import leadpilotImg from "../assets/proj-leadpilot.webp";
 import {
   SiReact,
   SiTypescript,
@@ -306,6 +307,20 @@ export const projects: Project[] = [
     highlights: [
       "Multi-step agent: plan → search → verify → write",
       "Self-corrects and retries when evidence is thin",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "LeadPilot",
+    tagline: "AI lead intake agent",
+    description:
+      "Paste a raw inquiry — an email, a DM, a contact-form message — and the agent extracts structured details, logs it to a Sheet, drafts a personalized reply, and notifies Slack, end to end.",
+    image: leadpilotImg,
+    url: "https://leadpilot-flame.vercel.app/",
+    tags: ["LangGraph", "Gemini", "Google Sheets API", "Slack API"],
+    highlights: [
+      "One pass: extract → log to Sheet → draft reply → notify Slack",
+      "Connected to a real Sheet and Slack channel, not a simulation",
     ],
     isDemo: true,
   },
