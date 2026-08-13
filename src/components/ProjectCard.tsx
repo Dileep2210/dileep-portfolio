@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, CheckCircle2, ChevronDown, FlaskConical } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, ChevronDown, FlaskConical, Zap } from "lucide-react";
 import type { Project } from "../data/portfolio";
 
 type ProjectCardProps = {
@@ -58,7 +58,12 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           </span>
         </div>
 
-        <p className="mt-2 text-sm leading-relaxed text-mist">
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-violet/30 bg-violet/10 px-3 py-1 text-xs font-medium text-violet-200">
+          <Zap size={12} className="text-violet-300" />
+          {project.metric.label}: <span className="text-white">{project.metric.value}</span>
+        </div>
+
+        <p className="mt-3 text-sm leading-relaxed text-mist">
           {project.description}
         </p>
 

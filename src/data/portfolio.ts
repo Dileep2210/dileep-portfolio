@@ -96,8 +96,10 @@ export type Service = {
 
 export type Project = {
   name: string;
+  category: "genai" | "webdev";
   tagline: string;
   description: string;
+  metric: { label: string; value: string };
   image: string;
   url: string;
   tags: string[];
@@ -250,27 +252,64 @@ export const learningItems: LearningItem[] = [
   },
 ];
 
+// GenAI projects lead — freelance clients hiring for AI want to see AI
+// first, not e-commerce. Order here drives display order.
 export const projects: Project[] = [
   {
-    name: "Calculator Cart",
-    tagline: "30+ free online calculators",
+    name: "Fieldnote",
+    category: "genai",
+    tagline: "AI research agent",
     description:
-      "29 free calculators across 7 categories — EMI, SIP, GST, BMI and more. No sign-up, ad-supported.",
-    image: calculatorCartImg,
-    url: "https://calculatorcart.com/",
-    tags: ["React", "Vite", "SEO", "Google AdSense"],
+      "Researching a topic usually means a dozen tabs and manually cross-checking sources → built an agent that plans sub-questions, searches the live web, and verifies its own evidence → delivers a cited report end to end, no human steering the middle steps.",
+    metric: { label: "Full agent run", value: "~75s" },
+    image: fieldnoteImg,
+    url: "https://fieldnote-ai-research-agent.vercel.app/",
+    tags: ["LangGraph", "Gemini", "FastAPI", "React"],
     highlights: [
-      "29 calculators across 7 categories",
-      "Monetized with Google AdSense",
+      "Multi-step agent: plan → search → verify → write",
+      "Self-corrects and retries when evidence is thin",
     ],
-    caseStudy:
-      "Built this after noticing how many \"free calculator\" sites bury the actual tool under pop-ups and slow ad networks. The key decision was keeping every calculation client-side — no backend round-trip for a BMI or EMI result — so it feels instant even on a slow connection. Organizing 29 tools into 7 clear categories (instead of one long list) was the main UX challenge, solved with a searchable, filterable grid. It's been live and earning passive ad revenue since launch, with effectively zero ongoing maintenance.",
+    isDemo: true,
+  },
+  {
+    name: "DocsQA",
+    category: "genai",
+    tagline: "RAG chatbot for your documents",
+    description:
+      "Finding one answer buried in a PDF means manually scanning pages → built a RAG chatbot with token-based chunking and a structured-output pipeline → every answer cites the exact chunk and page, in about 4 seconds.",
+    metric: { label: "Answer latency", value: "~4s" },
+    image: docsQaImg,
+    url: "https://docsqa-five.vercel.app/",
+    tags: ["React", "FastAPI", "LangChain", "Gemini", "ChromaDB"],
+    highlights: [
+      "Inline citations linked to source chunk & page",
+      "Schema-enforced answers, not freeform parsing",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "LeadPilot",
+    category: "genai",
+    tagline: "AI lead intake agent",
+    description:
+      "Raw inquiries pile up unlogged, unanswered, and easy to lose → built an agent that extracts structured details, logs to a Sheet, drafts a reply, and notifies Slack in one pass → a lead fully processed in about 35 seconds, connected to a real Sheet and Slack channel, not a simulation.",
+    metric: { label: "Lead → logged & notified", value: "~35s" },
+    image: leadpilotImg,
+    url: "https://leadpilot-flame.vercel.app/",
+    tags: ["LangGraph", "Gemini", "Google Sheets API", "Slack API"],
+    highlights: [
+      "One pass: extract → log to Sheet → draft reply → notify Slack",
+      "Connected to a real Sheet and Slack channel, not a simulation",
+    ],
+    isDemo: true,
   },
   {
     name: "GoVastra",
+    category: "webdev",
     tagline: "Premium Indian saree e-commerce",
     description:
-      "Editorial-style storefront for handwoven sarees — full shopping experience with auth, cart, wishlist and Razorpay payments.",
+      "Generic e-commerce templates don't read as premium → built a custom editorial-style storefront with auth, cart, wishlist and real Razorpay payments, verified server-side → a live, operating store today, not a demo.",
+    metric: { label: "Page load", value: "~1.6s" },
     image: govastraImg,
     url: "https://govastra.com/",
     tags: ["React", "Vite", "Auth & Cart", "Razorpay", "Live Chat"],
@@ -282,46 +321,21 @@ export const projects: Project[] = [
       "GoVastra needed to feel like a boutique, not a generic e-commerce template, while still handling real inventory and payments reliably. The main decision was building a custom, editorial-style storefront — typography-led, image-forward — instead of reaching for an off-the-shelf theme, so the brand actually reads as premium. Wiring Razorpay into checkout correctly, with payment verification handled server-side rather than trusted from the client, was the trickiest technical piece — a naive version of that is a common e-commerce security mistake. It's a real, operating store today, not a demo.",
   },
   {
-    name: "DocsQA",
-    tagline: "RAG chatbot for your documents",
+    name: "Calculator Cart",
+    category: "webdev",
+    tagline: "30+ free online calculators",
     description:
-      "Upload a PDF or text file, ask questions, get answers grounded in the content — every claim cites the exact chunk and page it came from.",
-    image: docsQaImg,
-    url: "https://docsqa-five.vercel.app/",
-    tags: ["React", "FastAPI", "LangChain", "Gemini", "ChromaDB"],
+      "Most free calculator sites bury the tool under pop-ups and slow ad networks → built 29 calculators across 7 categories, entirely client-side → loads in about 2.5 seconds and has run ad-monetized since launch with zero maintenance.",
+    metric: { label: "Calculators", value: "29 across 7 categories" },
+    image: calculatorCartImg,
+    url: "https://calculatorcart.com/",
+    tags: ["React", "Vite", "SEO", "Google AdSense"],
     highlights: [
-      "Inline citations linked to source chunk & page",
-      "Schema-enforced answers, not freeform parsing",
+      "29 calculators across 7 categories",
+      "Monetized with Google AdSense",
     ],
-    isDemo: true,
-  },
-  {
-    name: "Fieldnote",
-    tagline: "AI research agent",
-    description:
-      "Give it a topic — it plans sub-questions, searches the live web, verifies its own evidence, and writes a cited report end to end, no human steering the middle steps.",
-    image: fieldnoteImg,
-    url: "https://fieldnote-ai-research-agent.vercel.app/",
-    tags: ["LangGraph", "Gemini", "FastAPI", "React"],
-    highlights: [
-      "Multi-step agent: plan → search → verify → write",
-      "Self-corrects and retries when evidence is thin",
-    ],
-    isDemo: true,
-  },
-  {
-    name: "LeadPilot",
-    tagline: "AI lead intake agent",
-    description:
-      "Paste a raw inquiry — an email, a DM, a contact-form message — and the agent extracts structured details, logs it to a Sheet, drafts a personalized reply, and notifies Slack, end to end.",
-    image: leadpilotImg,
-    url: "https://leadpilot-flame.vercel.app/",
-    tags: ["LangGraph", "Gemini", "Google Sheets API", "Slack API"],
-    highlights: [
-      "One pass: extract → log to Sheet → draft reply → notify Slack",
-      "Connected to a real Sheet and Slack channel, not a simulation",
-    ],
-    isDemo: true,
+    caseStudy:
+      "Built this after noticing how many \"free calculator\" sites bury the actual tool under pop-ups and slow ad networks. The key decision was keeping every calculation client-side — no backend round-trip for a BMI or EMI result — so it feels instant even on a slow connection. Organizing 29 tools into 7 clear categories (instead of one long list) was the main UX challenge, solved with a searchable, filterable grid. It's been live and earning passive ad revenue since launch, with effectively zero ongoing maintenance.",
   },
 ];
 
