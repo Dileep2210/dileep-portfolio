@@ -27,7 +27,10 @@ export default function Navbar() {
   }, [menuOpen]);
 
   return (
-    <header
+    <motion.header
+      initial={{ y: -32, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled ? "py-3" : "py-5"
       }`}
@@ -52,7 +55,7 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className={`relative rounded-full px-4 py-1.5 text-sm transition-colors ${
+                className={`group relative rounded-full px-4 py-1.5 text-sm transition-colors ${
                   isActive ? "text-white" : "text-mist hover:text-white"
                 }`}
               >
@@ -62,6 +65,9 @@ export default function Navbar() {
                     className="absolute inset-0 rounded-full bg-gradient-to-r from-violet/70 to-cyan/50"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
+                )}
+                {!isActive && (
+                  <span className="absolute inset-x-4 bottom-0.5 h-px origin-left scale-x-0 bg-white/40 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                 )}
                 <span className="relative">{link.label}</span>
               </a>
@@ -88,14 +94,26 @@ export default function Navbar() {
           </Magnetic>
         </div>
 
-        <button
+        <motion.button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="glass rounded-full p-2 text-white lg:hidden"
+          whileTap={{ scale: 0.9 }}
+          className="glass relative overflow-hidden rounded-full p-2 text-white lg:hidden"
           aria-label="Toggle menu"
         >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={menuOpen ? "close" : "open"}
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex"
+            >
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
       </div>
 
       <AnimatePresence>
@@ -104,14 +122,18 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut", staggerChildren: 0.05 }}
             className="mx-6 mt-3 flex flex-col gap-1 rounded-2xl glass p-3 lg:hidden"
           >
-            {navLinks.map((link) => (
-              <a
+            {navLinks.map((link, i) => (
+              <motion.a
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: i * 0.04 }}
+                whileTap={{ scale: 0.97 }}
                 className={`rounded-xl px-4 py-3 text-sm ${
                   activeId === link.href.slice(1)
                     ? "bg-white/10 text-white"
@@ -119,7 +141,7 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-              </a>
+              </motion.a>
             ))}
             <a
               href={profile.resumeUrl}
@@ -140,6 +162,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

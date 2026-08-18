@@ -1,6 +1,29 @@
+import { motion } from "framer-motion";
 import SectionHeading from "./SectionHeading";
 import ProjectReel from "./ProjectReel";
 import { projects } from "../data/portfolio";
+
+type ReelLabelProps = {
+  eyebrow: string;
+  eyebrowClassName: string;
+  description: string;
+};
+
+function ReelLabel({ eyebrow, eyebrowClassName, description }: ReelLabelProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <p className={`font-mono text-xs uppercase tracking-[0.2em] ${eyebrowClassName}`}>
+        {eyebrow}
+      </p>
+      <p className="mt-2 max-w-xl text-sm text-mist">{description}</p>
+    </motion.div>
+  );
+}
 
 const NUMBER_WORDS = [
   "zero",
@@ -43,23 +66,25 @@ export default function Projects() {
           )}
         />
 
-        <p className="mt-14 font-mono text-xs uppercase tracking-[0.2em] text-cyan">
-          Web Development
-        </p>
-        <p className="mt-2 max-w-xl text-sm text-mist">
-          Full-stack builds — the same end-to-end delivery, general-purpose.
-        </p>
+        <div className="mt-14">
+          <ReelLabel
+            eyebrow="Web Development"
+            eyebrowClassName="text-cyan"
+            description="Full-stack builds — the same end-to-end delivery, general-purpose."
+          />
+        </div>
         <div className="mt-6 space-y-5">
           <ProjectReel projects={webdevRowA} direction="right" speed={38} />
           <ProjectReel projects={webdevRowB} direction="left" speed={44} />
         </div>
 
-        <p className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-mist">
-          GenAI Engineering
-        </p>
-        <p className="mt-2 max-w-xl text-sm text-mist">
-          Where I differentiate — agents and RAG systems doing real work, not chat demos.
-        </p>
+        <div className="mt-16">
+          <ReelLabel
+            eyebrow="GenAI Engineering"
+            eyebrowClassName="text-mist"
+            description="Where I differentiate — agents and RAG systems doing real work, not chat demos."
+          />
+        </div>
         <div className="mt-6">
           <ProjectReel projects={genaiProjects} direction="left" speed={30} />
         </div>

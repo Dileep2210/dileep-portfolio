@@ -27,9 +27,13 @@ export default function Services() {
             className="mt-14"
           >
             <SpotlightCard className="flex flex-col gap-6 rounded-3xl border border-violet/30 bg-gradient-to-br from-surface/80 to-surface-2/60 p-8 transition-all duration-300 hover:border-violet/50 sm:flex-row sm:items-center">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet to-cyan text-white">
+              <motion.div
+                whileHover={{ rotate: [0, -8, 8, -4, 0], scale: 1.08 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet to-cyan text-white"
+              >
                 <featured.icon size={26} />
-              </div>
+              </motion.div>
               <div className="flex-1">
                 <h3 className="font-display text-xl font-semibold text-white">
                   {featured.title}
@@ -66,9 +70,13 @@ export default function Services() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <SpotlightCard className="h-full rounded-2xl border border-border bg-surface/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-violet/40 hover:bg-surface-2">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet/20 to-cyan/20 text-cyan transition-transform duration-300 group-hover:scale-110">
+                <motion.div
+                  whileHover={{ rotate: [0, -8, 8, -4, 0], scale: 1.08 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet/20 to-cyan/20 text-cyan"
+                >
                   <service.icon size={20} />
-                </div>
+                </motion.div>
                 <h3 className="mt-4 font-display text-base font-semibold text-white">
                   {service.title}
                 </h3>

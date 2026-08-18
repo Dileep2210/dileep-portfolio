@@ -22,7 +22,11 @@ export default function SectionHeading({
       className={align === "center" ? "text-center" : "text-left"}
     >
       <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 font-mono text-xs uppercase tracking-[0.2em] text-cyan">
-        <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_10px_#22d3ee]" />
+        <motion.span
+          animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_10px_#22d3ee]"
+        />
         {eyebrow}
       </span>
       <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">

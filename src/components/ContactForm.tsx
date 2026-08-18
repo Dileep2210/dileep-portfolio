@@ -1,5 +1,9 @@
 import { useState, type SubmitEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, CheckCircle2, Loader2, Send } from "lucide-react";
+
+const inputClass =
+  "w-full rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-mist/60 transition-[border-color,transform] duration-200 focus:scale-[1.01] focus:border-violet/50 focus:outline-none";
 
 // Sign up free at formspree.io, create a form, and put its ID here (or set
 // VITE_FORMSPREE_ID in a .env file / your Vercel project's env vars) to wire
@@ -41,8 +45,19 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="relative flex flex-col items-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-6 py-8 text-center">
-        <CheckCircle2 size={28} className="text-emerald-400" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative flex flex-col items-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-6 py-8 text-center"
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 260, damping: 18 }}
+        >
+          <CheckCircle2 size={28} className="text-emerald-400" />
+        </motion.div>
         <p className="font-display text-base font-semibold text-white">
           Message sent
         </p>
@@ -56,7 +71,7 @@ export default function ContactForm() {
         >
           Send another message
         </button>
-      </div>
+      </motion.div>
     );
   }
 
@@ -83,7 +98,7 @@ export default function ContactForm() {
             type="text"
             required
             placeholder="Your name"
-            className="w-full rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-mist/60 focus:border-violet/50 focus:outline-none"
+            className={inputClass}
           />
         </div>
         <div>
@@ -96,7 +111,7 @@ export default function ContactForm() {
             type="email"
             required
             placeholder="you@company.com"
-            className="w-full rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-mist/60 focus:border-violet/50 focus:outline-none"
+            className={inputClass}
           />
         </div>
       </div>
@@ -111,23 +126,33 @@ export default function ContactForm() {
           required
           rows={4}
           placeholder="What are you building? Rough scope, timeline, budget range — whatever you've got."
-          className="w-full resize-none rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-mist/60 focus:border-violet/50 focus:outline-none"
+          className={`resize-none ${inputClass}`}
         />
       </div>
 
-      {(status === "error" || status === "unconfigured") && (
-        <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
-          <AlertCircle size={16} className="mt-0.5 shrink-0" />
-          {status === "unconfigured"
-            ? "The contact form isn't wired up to an inbox yet — please email me directly below instead."
-            : "Something went wrong sending that — please email me directly below instead."}
-        </div>
-      )}
+      <AnimatePresence>
+        {(status === "error" || status === "unconfigured") && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0, x: [0, -6, 6, -4, 4, 0] }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mt-4 flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
+          >
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            {status === "unconfigured"
+              ? "The contact form isn't wired up to an inbox yet — please email me directly below instead."
+              : "Something went wrong sending that — please email me directly below instead."}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <button
+      <motion.button
         type="submit"
         disabled={status === "sending"}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 transition-transform duration-300 hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100 sm:w-auto"
+        whileHover={{ scale: status === "sending" ? 1 : 1.02 }}
+        whileTap={{ scale: status === "sending" ? 1 : 0.96 }}
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 disabled:opacity-70 sm:w-auto"
       >
         {status === "sending" ? (
           <>
@@ -140,7 +165,7 @@ export default function ContactForm() {
             Send message
           </>
         )}
-      </button>
+      </motion.button>
     </form>
   );
 }

@@ -55,13 +55,18 @@ export default function About() {
               {profile.bio}
             </p>
             <div className="relative mt-8 flex flex-wrap gap-3">
-              {["React", "TypeScript", "FastAPI", "LangChain", "RAG"].map((t) => (
-                <span
+              {["React", "TypeScript", "FastAPI", "LangChain", "RAG"].map((t, i) => (
+                <motion.span
                   key={t}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: 0.3 + i * 0.06 }}
+                  whileHover={{ y: -2, borderColor: "rgba(124,58,237,0.5)" }}
                   className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs text-mist"
                 >
                   {t}
-                </span>
+                </motion.span>
               ))}
             </div>
           </motion.div>
@@ -76,9 +81,13 @@ export default function About() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <SpotlightCard className="rounded-2xl border border-border bg-surface/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-violet/40 hover:bg-surface-2">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet/20 to-cyan/20 text-cyan transition-transform duration-300 group-hover:scale-110">
+                  <motion.div
+                    whileHover={{ rotate: [0, -8, 8, -4, 0], scale: 1.08 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet/20 to-cyan/20 text-cyan"
+                  >
                     <pillar.icon size={20} />
-                  </div>
+                  </motion.div>
                   <h3 className="mt-4 font-display text-base font-semibold text-white">
                     {pillar.title}
                   </h3>

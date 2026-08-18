@@ -2,6 +2,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import BackgroundFX from "./components/BackgroundFX";
+import CursorGlow from "./components/CursorGlow";
 import Navbar from "./components/Navbar";
 import ScrollProgress from "./components/ScrollProgress";
 import Hero from "./components/Hero";
@@ -45,6 +46,7 @@ function App() {
     <MotionConfig reducedMotion="user">
       <AnimatePresence>{loading && <Preloader />}</AnimatePresence>
       <BackgroundFX />
+      <CursorGlow />
       <ScrollProgress />
       <Navbar />
       <motion.main

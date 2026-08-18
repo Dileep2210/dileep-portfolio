@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, CheckCircle2, Copy, Download, Mail } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import SectionHeading from "./SectionHeading";
@@ -63,29 +63,46 @@ export default function Contact() {
           </div>
 
           <div className="relative mt-5 flex flex-wrap items-center justify-center gap-3">
-            <a
+            <motion.a
               href={`mailto:${profile.email}`}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
               className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-border px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
             >
               <Mail size={15} />
               {profile.email}
-            </a>
-            <button
+            </motion.a>
+            <motion.button
               type="button"
               onClick={handleCopy}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
               className="inline-flex items-center gap-2 rounded-full glass px-4 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
             >
-              {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={copied ? "check" : "copy"}
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex"
+                >
+                  {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
+                </motion.span>
+              </AnimatePresence>
               {copied ? "Copied" : "Copy"}
-            </button>
-            <a
+            </motion.button>
+            <motion.a
               href={profile.resumeUrl}
               download
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
               className="inline-flex items-center gap-2 rounded-full glass px-4 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/30"
             >
               <Download size={15} />
               Resume
-            </a>
+            </motion.a>
           </div>
 
           <div className="relative mt-6 flex items-center justify-center gap-3">
@@ -108,20 +125,29 @@ export default function Contact() {
         </motion.div>
 
         <motion.ul
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="show"
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+          }}
           className="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-2"
         >
           {trustPoints.map((point) => (
-            <li
+            <motion.li
               key={point}
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                show: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              whileHover={{ x: 4 }}
               className="flex items-start gap-2 text-sm text-mist"
             >
               <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />
               {point}
-            </li>
+            </motion.li>
           ))}
         </motion.ul>
       </div>
