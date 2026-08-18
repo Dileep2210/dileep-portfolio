@@ -1,8 +1,20 @@
 import SectionHeading from "./SectionHeading";
-import ProjectCard from "./ProjectCard";
+import ProjectReel from "./ProjectReel";
 import { projects } from "../data/portfolio";
 
-const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six"];
+const NUMBER_WORDS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+];
 const asWord = (n: number) => NUMBER_WORDS[n] ?? String(n);
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -13,6 +25,11 @@ const demoCount = projects.filter((p) => p.isDemo).length;
 
 const genaiProjects = projects.filter((p) => p.category === "genai");
 const webdevProjects = projects.filter((p) => p.category === "webdev");
+// Split into two rows so the reel reads as a dual film strip instead of
+// one very long line — each half scrolls in the opposite direction.
+const webdevMid = Math.ceil(webdevProjects.length / 2);
+const webdevRowA = webdevProjects.slice(0, webdevMid);
+const webdevRowB = webdevProjects.slice(webdevMid);
 
 export default function Projects() {
   return (
@@ -22,7 +39,7 @@ export default function Projects() {
           eyebrow="Selected Work"
           title="Live projects, built solo end to end"
           description={capitalize(
-            `${asWord(liveCount)} live business${liveCount === 1 ? "" : "es"} and ${asWord(demoCount)} AI demo${demoCount === 1 ? "" : "s"} I designed, built and shipped by myself — from idea to a real, live URL. Proof I can take a freelance project the whole way.`,
+            `${asWord(liveCount)} live business${liveCount === 1 ? "" : "es"} and ${asWord(demoCount)} solo build${demoCount === 1 ? "" : "s"} — AI agents and demo sites alike — I designed, built and shipped by myself, from idea to a real, live URL. Proof I can take a freelance project the whole way.`,
           )}
         />
 
@@ -32,10 +49,8 @@ export default function Projects() {
         <p className="mt-2 max-w-xl text-sm text-mist">
           Where I differentiate — agents and RAG systems doing real work, not chat demos.
         </p>
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          {genaiProjects.map((project, i) => (
-            <ProjectCard key={project.name} project={project} index={i} />
-          ))}
+        <div className="mt-6">
+          <ProjectReel projects={genaiProjects} direction="left" speed={30} />
         </div>
 
         <p className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-mist">
@@ -44,10 +59,9 @@ export default function Projects() {
         <p className="mt-2 max-w-xl text-sm text-mist">
           Full-stack builds — the same end-to-end delivery, general-purpose.
         </p>
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          {webdevProjects.map((project, i) => (
-            <ProjectCard key={project.name} project={project} index={i} />
-          ))}
+        <div className="mt-6 space-y-5">
+          <ProjectReel projects={webdevRowA} direction="right" speed={38} />
+          <ProjectReel projects={webdevRowB} direction="left" speed={44} />
         </div>
       </div>
     </section>

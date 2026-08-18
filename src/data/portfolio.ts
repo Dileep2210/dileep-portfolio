@@ -12,6 +12,11 @@ import govastraImg from "../assets/proj-govastra.webp";
 import docsQaImg from "../assets/proj-docsqa.webp";
 import fieldnoteImg from "../assets/proj-fieldnote.webp";
 import leadpilotImg from "../assets/proj-leadpilot.webp";
+import sodaImg from "../assets/proj-soda.webp";
+import realestateImg from "../assets/proj-realestate.webp";
+import saloonImg from "../assets/proj-saloon.webp";
+import aldenImg from "../assets/proj-alden.webp";
+import bustravelImg from "../assets/proj-bustravel.webp";
 import {
   SiReact,
   SiTypescript,
@@ -336,6 +341,86 @@ export const projects: Project[] = [
     ],
     caseStudy:
       "Built this after noticing how many \"free calculator\" sites bury the actual tool under pop-ups and slow ad networks. The key decision was keeping every calculation client-side — no backend round-trip for a BMI or EMI result — so it feels instant even on a slow connection. Organizing 29 tools into 7 clear categories (instead of one long list) was the main UX challenge, solved with a searchable, filterable grid. It's been live and earning passive ad revenue since launch, with effectively zero ongoing maintenance.",
+  },
+  {
+    name: "Soda",
+    category: "webdev",
+    tagline: "Beverage brand landing page",
+    description:
+      "Product pages for beverage brands usually default to a generic template → built a motion-led hero with a rotating product carousel and a full animated scroll story → a launch-ready storefront front page, live in the browser.",
+    metric: { label: "Hero", value: "Full motion, no backend" },
+    image: sodaImg,
+    url: "https://soda-website.vercel.app/",
+    tags: ["React", "Framer Motion", "Tailwind"],
+    highlights: [
+      "Rotating product carousel with live pricing cards",
+      "Scroll-driven animated hero, zero backend needed",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "Crestline",
+    category: "webdev",
+    tagline: "Construction & real estate site",
+    description:
+      "Design-build firms need one site that sells both construction services and live listings → built a dual-purpose homepage with a property search bar over a full-bleed hero → a filterable listings flow in a single scroll, no separate portal.",
+    metric: { label: "Search", value: "4 live filter fields" },
+    image: realestateImg,
+    url: "https://real-estate-delta-cyan.vercel.app/",
+    tags: ["React", "Tailwind", "Property Search"],
+    highlights: [
+      "Property search bar with type, location, price & beds",
+      "Ground-up to done-right narrative in one hero",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "Élané",
+    category: "webdev",
+    tagline: "Luxury salon booking site",
+    description:
+      "Salon sites often look like a booking widget bolted onto a template → built an editorial, cinematic homepage with a parallax hero and layered imagery → a booking-ready experience that reads boutique, not generic.",
+    metric: { label: "Feel", value: "Editorial, parallax hero" },
+    image: saloonImg,
+    url: "https://saloon-six-jade.vercel.app/",
+    tags: ["React", "Framer Motion", "Parallax"],
+    highlights: [
+      "Parallax, layered hero with serif editorial type",
+      "Direct booking & services CTAs above the fold",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "Alden",
+    category: "webdev",
+    tagline: "University admissions site",
+    description:
+      "Prospective students bounce off cluttered .edu templates → built a clean admissions site with live stat cards (founded, rank, faculty ratio) and a program explorer → an application funnel that actually reads as trustworthy.",
+    metric: { label: "Stats bar", value: "4 live metrics" },
+    image: aldenImg,
+    url: "https://alden-university.vercel.app/",
+    tags: ["React", "Tailwind", "Illustration"],
+    highlights: [
+      "Animated stat bar: founded, programs, rank, ratio",
+      "Illustrated campus hero instead of stock photography",
+    ],
+    isDemo: true,
+  },
+  {
+    name: "Roadly",
+    category: "webdev",
+    tagline: "Bus travel booking site",
+    description:
+      "Bus ticket sites bury the actual search under ads and clutter → built a from/to/date/passengers search widget over a sunset-gradient hero → a book-ready flow, search to seat, with nothing standing in the way.",
+    metric: { label: "Search", value: "4-field live booking form" },
+    image: bustravelImg,
+    url: "https://bustravel-alpha.vercel.app/",
+    tags: ["React", "Tailwind", "Booking UI"],
+    highlights: [
+      "From/to/date/passenger search with swap control",
+      "Route-first layout: search before scroll, not after",
+    ],
+    isDemo: true,
   },
 ];
 
