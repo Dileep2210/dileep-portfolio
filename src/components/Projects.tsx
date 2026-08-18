@@ -44,16 +44,6 @@ export default function Projects() {
         />
 
         <p className="mt-14 font-mono text-xs uppercase tracking-[0.2em] text-cyan">
-          GenAI Engineering
-        </p>
-        <p className="mt-2 max-w-xl text-sm text-mist">
-          Where I differentiate — agents and RAG systems doing real work, not chat demos.
-        </p>
-        <div className="mt-6">
-          <ProjectReel projects={genaiProjects} direction="left" speed={30} />
-        </div>
-
-        <p className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-mist">
           Web Development
         </p>
         <p className="mt-2 max-w-xl text-sm text-mist">
@@ -62,6 +52,16 @@ export default function Projects() {
         <div className="mt-6 space-y-5">
           <ProjectReel projects={webdevRowA} direction="right" speed={38} />
           <ProjectReel projects={webdevRowB} direction="left" speed={44} />
+        </div>
+
+        <p className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-mist">
+          GenAI Engineering
+        </p>
+        <p className="mt-2 max-w-xl text-sm text-mist">
+          Where I differentiate — agents and RAG systems doing real work, not chat demos.
+        </p>
+        <div className="mt-6">
+          <ProjectReel projects={genaiProjects} direction="left" speed={30} />
         </div>
       </div>
     </section>
