@@ -17,7 +17,11 @@ export function useActiveSection(sectionIds: string[]) {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
 
         if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
+          const id = visible[0].target.id;
+          setActiveId(id);
+          if (window.location.hash.slice(1) !== id) {
+            history.replaceState(null, "", `#${id}`);
+          }
         }
       },
       { rootMargin: "-35% 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
