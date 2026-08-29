@@ -6,7 +6,9 @@ import CursorGlow from "./components/CursorGlow";
 import Navbar from "./components/Navbar";
 import ScrollProgress from "./components/ScrollProgress";
 import Hero from "./components/Hero";
+import Ticker from "./components/Ticker";
 import About from "./components/About";
+import Skills from "./components/Skills";
 import Projects from "./components/Projects";
 import Testimonials from "./components/Testimonials";
 import Services from "./components/Services";
@@ -55,7 +57,9 @@ function App() {
         transition={{ duration: 0.6, delay: 0.3 }}
       >
         <Hero />
+        <Ticker />
         <About />
+        <Skills />
         <Projects />
         <Testimonials />
         <Services />

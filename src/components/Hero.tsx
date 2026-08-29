@@ -1,5 +1,17 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
 import { ArrowDown, ArrowUpRight, Mail } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import {
@@ -103,6 +115,24 @@ function RotatingWords({ words }: { words: string[] }) {
 }
 
 export default function Hero() {
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springRotateX = useSpring(rotateX, { stiffness: 150, damping: 20 });
+  const springRotateY = useSpring(rotateY, { stiffness: 150, damping: 20 });
+
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    rotateY.set(px * 16);
+    rotateX.set(py * -16);
+  };
+
+  const handlePointerLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
   return (
     <section
       id="home"
@@ -199,7 +229,14 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.85, rotate: -3 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="relative mx-auto aspect-[4/5] w-full max-w-sm"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+          style={{
+            rotateX: springRotateX,
+            rotateY: springRotateY,
+            transformPerspective: 900,
+          }}
+          className="relative mx-auto aspect-[4/5] w-full max-w-sm [transform-style:preserve-3d]"
         >
           <div className="animate-float absolute inset-6 rounded-[3rem] bg-gradient-to-br from-violet via-indigo to-cyan opacity-30 blur-3xl" />
           <div className="absolute bottom-2 left-1/2 h-10 w-3/4 -translate-x-1/2 rounded-full bg-violet/40 blur-2xl" />

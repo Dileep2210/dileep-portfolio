@@ -166,10 +166,42 @@ export const socialLinks: SocialLink[] = [
 export const navLinks: NavLink[] = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
+  { label: "Skills", href: "#skills" },
   { label: "Work", href: "#work" },
   { label: "Services", href: "#services" },
   { label: "Stack", href: "#stack" },
   { label: "Contact", href: "#contact" },
+];
+
+export type SkillProficiency = {
+  label: string;
+  value: number;
+  note: string;
+};
+
+// Relative depth across my core disciplines — not a certification score,
+// just an honest signal of where I spend the most reps.
+export const skillProficiency: SkillProficiency[] = [
+  {
+    label: "Frontend Engineering",
+    value: 92,
+    note: "React, TypeScript, motion-first interfaces",
+  },
+  {
+    label: "GenAI / LLM Engineering",
+    value: 90,
+    note: "RAG pipelines, LangChain/LangGraph agents",
+  },
+  {
+    label: "Backend & APIs",
+    value: 85,
+    note: "FastAPI, Flask, REST design that stays fast",
+  },
+  {
+    label: "Databases & DevOps",
+    value: 78,
+    note: "PostgreSQL, Docker, real deployments",
+  },
 ];
 
 export const techStack: TechCategory[] = [
