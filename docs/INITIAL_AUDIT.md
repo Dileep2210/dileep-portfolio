@@ -90,8 +90,15 @@ Confirmed:
 
 Not to be claimed: customer reviews (live site shows none yet), traffic/revenue figures, timeline beyond the commit dates. Client testimonial = draft slot only until the client approves.
 
-### CartInMinutes — **not verified**
-No local source folder and no URL found. It will be seeded as an **unpublished draft** described as a grocery e-commerce concept until you give a repo or live URL.
+### CartInMinutes — verified from source (private repo `Dileep2210/cartinminutes`, created 2026-09-03, last push 2026-11-03)
+
+Confirmed from the README: a quick-commerce grocery & essentials delivery **MVP** under the original demo brand "Zippi".
+- Next.js 15 / React 19 / TypeScript / Tailwind storefront **and** admin; Zustand, React Query, React Hook Form + Zod, Framer Motion, Recharts.
+- FastAPI, SQLAlchemy 2, Alembic, Pydantic v2, PostgreSQL, optional Redis, WebSockets; Docker Compose; `render.yaml` present.
+- Search with suggestions, category filters, product pages, server cart with guest-cart merge, coupons, Buy Now, address book, live order tracking (6-stage timeline, simulated delivery map), notifications over WebSockets, JWT access + refresh (refresh hashed at rest), forgot-password OTP, role-based admin with CRUD, analytics, rider application flow.
+- Payments and maps sit behind abstraction layers with **demo fallbacks**.
+
+Presented as a **demo / MVP**, not production usage. No live URL is known; the repo is private, so no GitHub link is shown publicly unless you make it public.
 
 ### Existing projects
 The 10 existing projects are migrated as-is, including their `isDemo` flags. Two existing claims I cannot verify and will carry over unchanged but flag for your review: GoVastra "a live, operating store today" and Calculator Cart "earning passive ad revenue since launch".
