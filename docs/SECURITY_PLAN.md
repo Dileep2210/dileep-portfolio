@@ -18,7 +18,7 @@ References: OWASP ASVS 4.0.3 (Level 2 targets for auth/session/access control), 
 
 **Authentication** — Argon2id (argon2-cffi defaults); minimum password length 12, max 128; constant-time dummy verify for unknown emails; lock account 15 min after 5 consecutive failures; slowapi 10/min per IP on login; generic "Invalid email or password". TOTP (RFC 6238, ±1 step, replay of the same step rejected) sealed with Fernet using a key derived from `SECRET_KEY` via HKDF.
 
-**Session** — access JWT (HS256, 15 min, claims `sub`, `sid`, `ver`, `type`, `iat`, `exp`, `iss`) in `pf_access` (path `/api`); opaque 256-bit refresh token in `pf_refresh` (path `/api/v1/auth`, 7 days, stored as SHA-256). Every authenticated request verifies the session row is unrevoked and `token_version` matches, so logout and password reset take effect immediately. Reuse of a rotated refresh token revokes the whole family.
+**Session** — access JWT (HS256, 15 min, claims `sub`, `sid`, `ver`, `type`, `iat`, `exp`, `iss`) in `pf_access` (path `/api`); opaque 256-bit refresh token in `pf_refresh` (path `/api/v1/auth`, 7 days, stored as SHA-256). Every authenticated request verifies the `auth_sessions` row is unrevoked and `token_version` matches, so logout and password reset take effect immediately. Reuse of a rotated refresh token revokes the whole session.
 
 **CSRF** — `pf_csrf` readable cookie + `X-CSRF-Token` header compared in constant time for every state-changing request that carries the session cookie; `Origin`/`Referer` must match `PUBLIC_SITE_ORIGIN` for those requests.
 

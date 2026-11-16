@@ -1,7 +1,7 @@
 """Unversioned endpoints: health, readiness, sitemap and the legacy contact form."""
 
 from datetime import UTC, datetime
-from xml.sax.saxutils import escape
+from html import escape
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response
 from fastapi.responses import JSONResponse

@@ -113,7 +113,7 @@ def create_app() -> FastAPI:
             h.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
         if settings.is_production:
             h.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-        if request.url.path.startswith(("/api/v1/admin", "/api/v1/auth")):
+        if request.url.path.startswith(("/api/v1/admin", "/api/v1/auth")) or response.status_code >= 400:
             h["Cache-Control"] = "no-store"
         access_log.info(
             "rid=%s %s %s %s %.1fms user=%s",

@@ -59,7 +59,9 @@ Search = Annotated[str | None, Query(max_length=100)]
 
 
 def _cache(response: Response, seconds: int = 60) -> None:
-    response.headers["Cache-Control"] = f"public, max-age={seconds}, stale-while-revalidate=300"
+    # Browsers always revalidate, so CMS edits are visible on the next page load. A shared cache
+    # (CDN) may hold it briefly; TanStack Query already de-duplicates requests in the SPA.
+    response.headers["Cache-Control"] = f"public, no-cache, s-maxage={min(seconds, 30)}"
 
 
 def _like(q: str) -> str:

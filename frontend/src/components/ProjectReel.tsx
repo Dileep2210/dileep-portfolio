@@ -1,38 +1,27 @@
 import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import ProjectPoster from "./ProjectPoster";
-import type { Project } from "../data/portfolio";
+import type { Project } from "../lib/types";
 
 type ProjectReelProps = {
   projects: Project[];
-  /** Scroll direction — alternate reels in opposite directions for a "dual film reel" feel. */
   direction?: "left" | "right";
   /** Seconds for one full loop — lower is faster. */
   speed?: number;
-  /** Pauses the scrolling (driven by the section's pause/play control). */
   paused?: boolean;
 };
 
-type MarqueeStyle = CSSProperties & {
-  "--marquee-duration"?: string;
-  "--marquee-direction"?: string;
-};
+type MarqueeStyle = CSSProperties & { "--marquee-duration"?: string; "--marquee-direction"?: string };
 
-export default function ProjectReel({
-  projects,
-  direction = "left",
-  speed = 34,
-  paused = false,
-}: ProjectReelProps) {
+export default function ProjectReel({ projects, direction = "left", speed = 34, paused = false }: ProjectReelProps) {
+  if (projects.length === 0) return null;
   // Duplicated so the track can loop seamlessly at translateX(-50%).
   const track = [...projects, ...projects];
-
   const trackStyle: MarqueeStyle = {
     "--marquee-duration": `${speed}s`,
     "--marquee-direction": direction === "right" ? "reverse" : "normal",
     animationPlayState: paused ? "paused" : "running",
   };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -46,11 +35,7 @@ export default function ProjectReel({
         style={trackStyle}
       >
         {track.map((project, i) => (
-          <ProjectPoster
-            key={`${project.name}-${i}`}
-            project={project}
-            ariaHidden={i >= projects.length}
-          />
+          <ProjectPoster key={`${project.id}-${i}`} project={project} ariaHidden={i >= projects.length} />
         ))}
       </div>
     </motion.div>

@@ -1,17 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Download, Menu, X } from "lucide-react";
-import { navLinks, profile } from "../data/portfolio";
-import { useActiveSection } from "../hooks/useActiveSection";
+import { Link, NavLink, useLocation } from "react-router";
 import Magnetic from "./Magnetic";
+import type { NavItem } from "../lib/types";
 
-const sectionIds = navLinks.map((l) => l.href.slice(1));
+const FALLBACK_NAV: NavItem[] = [
+  { id: "home", label: "Home", href: "/", location: "header", open_in_new_tab: false },
+  { id: "about", label: "About", href: "/about", location: "header", open_in_new_tab: false },
+  { id: "services", label: "Services", href: "/services", location: "header", open_in_new_tab: false },
+  { id: "projects", label: "Projects", href: "/projects", location: "header", open_in_new_tab: false },
+  { id: "blog", label: "Blog", href: "/blog", location: "header", open_in_new_tab: false },
+  { id: "contact", label: "Contact", href: "/contact", location: "header", open_in_new_tab: false },
+];
 
-export default function Navbar() {
+type NavbarProps = { items?: NavItem[]; resumeUrl?: string | null; initials?: string; brand?: string };
+
+function isInternal(href: string) {
+  return href.startsWith("/") && !href.startsWith("//");
+}
+
+export default function Navbar({ items, resumeUrl, initials = "DP", brand = "Dileep" }: NavbarProps) {
+  const links = (items?.length ? items : FALLBACK_NAV).filter((i) => i.location === "header");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const activeId = useActiveSection(sectionIds);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
+
+  useEffect(() => setMenuOpen(false), [location.pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -45,66 +61,75 @@ export default function Navbar() {
       initial={{ y: -32, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "py-3" : "py-5"
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "py-3" : "py-5"}`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
-        <a
-          href="#home"
-          className="group flex items-center gap-2 font-display text-lg font-semibold text-white"
-        >
+        <Link to="/" className="group flex items-center gap-2 font-display text-lg font-semibold text-white">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet via-indigo to-cyan font-display text-sm shadow-lg shadow-violet/30 transition-transform duration-300 group-hover:scale-105">
-            DP
+            {initials}
           </span>
           <span className="hidden sm:inline">
-            Dileep<span className="text-gradient">.dev</span>
+            {brand}
+            <span className="text-gradient">.dev</span>
           </span>
-        </a>
+        </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 rounded-full glass px-2 py-2 lg:flex">
-          {navLinks.map((link) => {
-            const isActive = activeId === link.href.slice(1);
-            return (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`group relative rounded-full px-4 py-1.5 text-sm transition-colors ${
-                  isActive ? "text-white" : "text-mist hover:text-white"
-                }`}
+          {links.map((link) =>
+            isInternal(link.href) ? (
+              <NavLink
+                key={link.id}
+                to={link.href}
+                end={link.href === "/"}
+                className={({ isActive }) =>
+                  `group relative rounded-full px-4 py-1.5 text-sm transition-colors ${isActive ? "text-white" : "text-mist hover:text-white"}`
+                }
               >
-                {isActive && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-violet/70 to-cyan/50"
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                  />
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-violet/70 to-cyan/50"
+                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative">{link.label}</span>
+                  </>
                 )}
-                {!isActive && (
-                  <span className="absolute inset-x-4 bottom-0.5 h-px origin-left scale-x-0 bg-white/40 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-                )}
-                <span className="relative">{link.label}</span>
+              </NavLink>
+            ) : (
+              <a
+                key={link.id}
+                href={link.href}
+                target={link.open_in_new_tab ? "_blank" : undefined}
+                rel={link.open_in_new_tab ? "noopener noreferrer" : undefined}
+                className="relative rounded-full px-4 py-1.5 text-sm text-mist transition-colors hover:text-white"
+              >
+                {link.label}
               </a>
-            );
-          })}
+            ),
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <a
-            href={profile.resumeUrl}
-            download
-            className="flex items-center gap-1.5 rounded-full glass px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30"
-          >
-            <Download size={15} />
-            Resume
-          </a>
-          <Magnetic strength={0.4}>
+          {resumeUrl && (
             <a
-              href={`mailto:${profile.email}`}
+              href={resumeUrl}
+              download
+              className="flex items-center gap-1.5 rounded-full glass px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30"
+            >
+              <Download size={15} aria-hidden />
+              Resume
+            </a>
+          )}
+          <Magnetic strength={0.4}>
+            <Link
+              to="/contact"
               className="rounded-full bg-white px-5 py-2 text-sm font-medium text-ink transition-transform duration-300 hover:scale-105"
             >
-              Let's talk
-            </a>
+              Hire me
+            </Link>
           </Magnetic>
         </div>
 
@@ -140,43 +165,44 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25, ease: "easeOut", staggerChildren: 0.05 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="mx-6 mt-3 flex flex-col gap-1 rounded-2xl glass p-3 lg:hidden"
           >
-            {navLinks.map((link, i) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
+            {links.map((link, i) => (
+              <motion.div
+                key={link.id}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.04 }}
-                whileTap={{ scale: 0.97 }}
-                className={`rounded-xl px-4 py-3 text-sm ${
-                  activeId === link.href.slice(1)
-                    ? "bg-white/10 text-white"
-                    : "text-mist"
-                }`}
               >
-                {link.label}
-              </motion.a>
+                {isInternal(link.href) ? (
+                  <NavLink
+                    to={link.href}
+                    end={link.href === "/"}
+                    className={({ isActive }) => `block rounded-xl px-4 py-3 text-sm ${isActive ? "bg-white/10 text-white" : "text-mist"}`}
+                  >
+                    {link.label}
+                  </NavLink>
+                ) : (
+                  <a href={link.href} className="block rounded-xl px-4 py-3 text-sm text-mist">
+                    {link.label}
+                  </a>
+                )}
+              </motion.div>
             ))}
-            <a
-              href={profile.resumeUrl}
-              download
-              onClick={() => setMenuOpen(false)}
-              className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-3 text-center text-sm font-medium text-white"
-            >
-              <Download size={15} />
-              Resume
-            </a>
-            <a
-              href={`mailto:${profile.email}`}
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-ink"
-            >
-              Let's talk
-            </a>
+            {resumeUrl && (
+              <a
+                href={resumeUrl}
+                download
+                className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-3 text-center text-sm font-medium text-white"
+              >
+                <Download size={15} aria-hidden />
+                Resume
+              </a>
+            )}
+            <Link to="/contact" className="rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-ink">
+              Hire me
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

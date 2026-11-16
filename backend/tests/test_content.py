@@ -29,6 +29,10 @@ def test_project_lifecycle_draft_publish_edit_delete(admin, client):
     detail = client.get(f"{P}/projects/acme-store").json()
     assert detail["project"]["title"] == "Acme Store" and detail["project"]["category"]["slug"] == "client-work"
 
+    # Re-sending the same technologies (as the admin form does) must not violate the unique constraint.
+    r = admin.patch(f"{A}/projects/{p['id']}", json={"technologies": ["FastAPI", "React", "Docker"], "slug": "acme-store"})
+    assert r.status_code == 200, r.text
+    assert r.json()["technologies"] == ["FastAPI", "React", "Docker"]
     admin.patch(f"{A}/projects/{p['id']}", json={"title": "Acme Store v2", "featured": True})
     assert client.get(f"{P}/projects/acme-store").json()["project"]["title"] == "Acme Store v2"
     assert client.get(f"{P}/projects", params={"featured": True}).json()["total"] == 1

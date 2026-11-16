@@ -3,3 +3,5 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+media_uploads/
+.e2e_media/

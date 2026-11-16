@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Mail } from "lucide-react";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { ArrowDown, ArrowUpRight, Download } from "lucide-react";
+import { Link } from "react-router";
 import {
   SiAnthropic,
   SiFastapi,
@@ -13,12 +13,19 @@ import {
   SiVite,
 } from "react-icons/si";
 import { TbSparkles } from "react-icons/tb";
-import { profile, socialLinks } from "../data/portfolio";
 import Magnetic from "./Magnetic";
-import profileImg from "../assets/profile.webp";
-import profileImgSmall from "../assets/profile-768.webp";
+import { iconFor } from "../lib/icons";
+import type { HomepageSection, Site } from "../lib/types";
 
-const icons = { github: FaGithub, linkedin: FaLinkedin, mail: Mail };
+type Cta = { label?: string; href?: string };
+
+function SmartLink({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
+  return href.startsWith("/") ? (
+    <Link to={href} className={className}>{children}</Link>
+  ) : (
+    <a href={href} className={className}>{children}</a>
+  );
+}
 
 const floatingBadges = [
   { icon: SiReact, label: "React", color: "#61DAFB", className: "left-0 top-6", delay: "0s" },
@@ -45,16 +52,17 @@ function useTextWidth(text: string, font: string) {
 }
 
 function RotatingWords({ words }: { words: string[] }) {
+  const safeWords = words.length ? words : [""];
   const [index, setIndex] = useState(0);
   const containerRef = useRef<HTMLSpanElement>(null);
   const [metrics, setMetrics] = useState({ width: 0, basePx: 0, font: "" });
 
   useEffect(() => {
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % words.length);
+      setIndex((i) => (i + 1) % safeWords.length);
     }, 2600);
     return () => clearInterval(id);
-  }, [words.length]);
+  }, [safeWords.length]);
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -77,7 +85,7 @@ function RotatingWords({ words }: { words: string[] }) {
     return () => ro.disconnect();
   }, []);
 
-  const word = words[index];
+  const word = safeWords[index % safeWords.length];
   const naturalWidth = useTextWidth(word, metrics.font);
   const fontSize =
     naturalWidth > 0 && metrics.width > 0 && naturalWidth > metrics.width
@@ -103,7 +111,14 @@ function RotatingWords({ words }: { words: string[] }) {
   );
 }
 
-export default function Hero() {
+export default function Hero({ site, section }: { site: Site; section?: HomepageSection }) {
+  const s = site.settings;
+  const data = (section?.data ?? {}) as { primary_cta?: Cta; secondary_cta?: Cta; resume_label?: string };
+  const primary = { label: data.primary_cta?.label || "View My Projects", href: data.primary_cta?.href || "/projects" };
+  const secondary = { label: data.secondary_cta?.label || "Hire Me", href: data.secondary_cta?.href || "/contact" };
+  const resume = site.resume_url;
+  const words = s.rotating_roles.length ? s.rotating_roles : [s.headline || "Full Stack Developer"];
+  const isDefaultPortrait = s.profile_image_url === "/images/profile.webp";
   return (
     <section
       id="home"
@@ -121,7 +136,7 @@ export default function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
-            Available for freelance — websites, apps &amp; AI features
+            {s.availability || s.headline}
           </motion.div>
 
           <motion.h1
@@ -130,9 +145,12 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
-            Hi, I'm {profile.firstName} —
-            <br />
-            building with <RotatingWords words={profile.taglineWords} />
+            <span className="sr-only">{s.developer_name} — {section?.title || s.headline}. </span>
+            <span aria-hidden>
+              Hi, I'm {s.first_name || s.developer_name.split(" ")[0]} —
+              <br />
+              <RotatingWords words={words} />
+            </span>
           </motion.h1>
 
           <motion.p
@@ -141,7 +159,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.22 }}
             className="mt-6 max-w-xl text-base text-mist sm:text-lg"
           >
-            {profile.bio}
+            {section?.subtitle || s.introduction || s.bio}
           </motion.p>
 
           <motion.div
@@ -151,25 +169,35 @@ export default function Hero() {
             className="mt-8 flex flex-wrap items-center gap-4"
           >
             <Magnetic>
-              <a
-                href="#contact"
+              <SmartLink
+                href={primary.href}
                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 transition-transform duration-300 hover:scale-105"
               >
-                Get in touch
+                {primary.label}
                 <ArrowUpRight
                   size={16}
                   className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 />
-              </a>
+              </SmartLink>
             </Magnetic>
             <Magnetic>
-              <a
-                href="#stack"
+              <SmartLink
+                href={secondary.href}
                 className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-white/30"
               >
-                Explore my stack
-              </a>
+                {secondary.label}
+              </SmartLink>
             </Magnetic>
+            {resume && (
+              <a
+                href={resume}
+                download
+                className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium text-mist transition-colors hover:text-white"
+              >
+                <Download size={15} aria-hidden />
+                {data.resume_label || "Download Resume"}
+              </a>
+            )}
           </motion.div>
 
           <motion.div
@@ -178,13 +206,13 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.46 }}
             className="mt-10 flex items-center gap-3"
           >
-            {socialLinks.map((social) => {
-              const Icon = icons[social.icon];
+            {site.social_links.map((social) => {
+              const Icon = iconFor(social.icon);
               return (
                 <a
-                  key={social.label}
-                  href={social.href}
-                  target={social.icon === "mail" ? undefined : "_blank"}
+                  key={social.id}
+                  href={social.url}
+                  target={social.url.startsWith("mailto:") ? undefined : "_blank"}
                   rel="noreferrer"
                   aria-label={social.label}
                   className="flex h-11 w-11 items-center justify-center rounded-full glass text-mist transition-all duration-300 hover:-translate-y-1 hover:text-white hover:shadow-lg hover:shadow-violet/20"
@@ -206,14 +234,14 @@ export default function Hero() {
           <div className="absolute bottom-2 left-1/2 h-10 w-3/4 -translate-x-1/2 rounded-full bg-violet/40 blur-2xl" />
 
           <img
-            src={profileImg}
-            srcSet={`${profileImgSmall} 768w, ${profileImg} 960w`}
+            src={s.profile_image_url || "/images/profile.webp"}
+            srcSet={isDefaultPortrait ? "/images/profile-768.webp 768w, /images/profile.webp 960w" : undefined}
             sizes="(min-width: 640px) 384px, 90vw"
             width={960}
             height={1280}
             fetchPriority="high"
             decoding="async"
-            alt={profile.name}
+            alt={s.developer_name}
             className="absolute inset-0 h-full w-full object-contain object-bottom drop-shadow-[0_25px_45px_rgba(99,102,241,0.35)]"
           />
 
@@ -246,6 +274,7 @@ export default function Hero() {
 
       <motion.a
         href="#about"
+        aria-label="Scroll to the about section"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.6 }}

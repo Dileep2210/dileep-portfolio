@@ -1,73 +1,30 @@
-# Dileep Kumar Panchumarthi — Portfolio
+# Dileep Kumar Panchumarthi — Portfolio & CMS
 
-Personal portfolio for **Dileep Kumar Panchumarthi**, a Full Stack & GenAI
-developer available for freelance work — end-to-end websites, web apps, and
-AI-powered features (RAG, agents, LLM integrations).
+A dynamic developer portfolio with its own admin CMS.
 
-**Live site:** https://dileepkumar-dev.vercel.app
-
-## Tech Stack
-
-- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vite.dev/) (build tool)
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [Framer Motion](https://motion.dev/) and [Lenis](https://github.com/darkroomengineering/lenis) for animation and smooth scrolling
-- [Lucide](https://lucide.dev/) & [react-icons](https://react-icons.github.io/react-icons/)
-- Backend: [FastAPI](https://fastapi.tiangolo.com/) contact API (`backend/`) sending mail through Brevo SMTP
-- Tests: [Playwright](https://playwright.dev/) smoke tests, pytest for the backend
-
-## Getting Started
-
-```bash
-cd frontend
-npm install
-npm run dev         # frontend dev server (http://localhost:5173)
-npm run build       # type-check + production build
-npm run preview     # preview the production build
-npm run lint        # oxlint
-npm run test:e2e    # Playwright smoke tests (builds + previews the site, API is mocked)
-```
-
-To run the contact form end to end locally, start the backend too (see [backend/README.md](backend/README.md)).
-
-## Project Structure
-
-```
-frontend/                 # React + Vite site (deployed to Vercel)
-  src/
-    data/portfolio.ts     # all site content: profile, tech stack, projects, services, testimonials
-    components/           # one component per section (Hero, About, Projects, ...)
-    hooks/                # scroll-spy + smooth-scroll hooks
-  e2e/                    # Playwright smoke tests
-  public/                 # favicon, resume.pdf, og.png, robots.txt, sitemap.xml, 404.html
-  index.html, package.json, vite.config.ts, .env.example
-backend/                  # FastAPI contact API (deployed to Railway): app/, tests/, .env.example
-docs/DEPLOYMENT.md        # Railway + Vercel + Brevo setup and production checklist
-```
-
-## Environment variables
-
-| Where | Variable | Purpose |
+| Part | Stack | Folder |
 |---|---|---|
-| Frontend (Vercel / `.env`) | `VITE_API_URL` | Base URL of the backend, e.g. `https://your-service.up.railway.app`. Public, so never put secrets in `VITE_*` variables. |
-| Backend (Railway / `backend/.env`) | `SMTP_*`, `MAIL_FROM`, `CONTACT_RECEIVER_EMAIL`, `FRONTEND_ORIGIN`, `RATE_LIMIT_CONTACT` | See [backend/.env.example](backend/.env.example). |
+| Public site + admin dashboard | React 19, TypeScript, Vite, Tailwind 4, Framer Motion, React Router, TanStack Query, React Hook Form + Zod | `frontend/` |
+| API | Python, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL, Argon2, JWT cookies | `backend/` |
+| Hosting | Vercel (site, rewrites `/api/*`) → Railway (API + PostgreSQL), Cloudinary (media), Brevo (email) | |
 
-Copy `frontend/.env.example` and `backend/.env.example` (backend) to `.env` files for local work. Real `.env` files are git-ignored.
+Everything on the site — profile, homepage sections, projects, services, testimonials, skills, experience, blog, navigation, social links, SEO, resume — is managed at **`/admin`**. Content changes appear without rebuilding the frontend.
 
-## Content notes
+## Documentation
 
-- **Resume**: the nav and Contact links point to `frontend/public/resume.pdf`. Replace the file to update it.
-- **Testimonials**: the section hides itself while `testimonials` in `portfolio.ts` is empty. Add real quotes only.
-- **SEO**: canonical URL, Open Graph/Twitter tags and JSON-LD live in `frontend/index.html`; update them if the production domain changes (also `frontend/public/sitemap.xml` and `robots.txt`).
+| Doc | What |
+|---|---|
+| [docs/INITIAL_AUDIT.md](docs/INITIAL_AUDIT.md) | Starting point, verified project facts |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the pieces fit |
+| [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md) | Tables, constraints, migrations |
+| [docs/API_SPECIFICATION.md](docs/API_SPECIFICATION.md) | Conventions + every endpoint |
+| [docs/SECURITY_PLAN.md](docs/SECURITY_PLAN.md) | Threat model and controls |
+| [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) | Railway/Vercel setup, first admin, backups, rollback, local dev |
+| [docs/ADMIN_USER_GUIDE.md](docs/ADMIN_USER_GUIDE.md) | Using the dashboard |
+| [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) | What was tested and the results |
+| [docs/SECURITY_RECOMMENDATIONS.md](docs/SECURITY_RECOMMENDATIONS.md) | Remaining risks and next steps |
+| [docs/FINAL_AUDIT_REPORT.md](docs/FINAL_AUDIT_REPORT.md) | Summary report |
 
-## Deployment
+## Quick start (local)
 
-Frontend on [Vercel](https://vercel.com/) (Vite preset), backend on Railway, email through Brevo.
-Step-by-step instructions and the production test checklist are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-CI (`.github/workflows/ci.yml`) runs lint, build, audit, Playwright and the backend tests on every push and PR.
-
-## Contact
-
-- Email: dileepfreelancer22@gmail.com
-- GitHub: [@Dileep2210](https://github.com/Dileep2210)
-- LinkedIn: [panchumarthi-dileep-kumar](https://www.linkedin.com/in/panchumarthi-dileep-kumar-a6a82a219/)
+See [DEPLOYMENT_GUIDE.md §10](docs/DEPLOYMENT_GUIDE.md#10-local-development). In short: PostgreSQL in Docker → `alembic upgrade head` → `python -m app.cli seed` → `python -m app.cli create-admin --email you@example.com` → `uvicorn app.main:app --reload` → `cd frontend && npm run dev`.

@@ -1,309 +1,191 @@
-import { useRef, useState, type SubmitEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, Loader2, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { ApiError, api } from "../lib/api";
+import type { Service } from "../lib/types";
 
-const inputClass =
-  "w-full rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-mist/80 transition-[border-color,transform,box-shadow] duration-200 focus:scale-[1.01] focus:border-violet/50 focus:outline-none aria-[invalid=true]:border-amber-400/60";
+const singleLine = (label: string, min: number, max: number) =>
+  z
+    .string()
+    .trim()
+    .min(min, min > 0 ? `${label} must be at least ${min} characters.` : undefined)
+    .max(max, `${label} must be at most ${max} characters.`)
+    .refine((v) => !/[\r\n\t]/.test(v), `${label} must be a single line.`);
 
-// Base URL of the FastAPI backend (see /backend). Public by design: it holds no
-// secrets. SMTP credentials live only in the backend's environment.
-const API_URL = (
-  (import.meta.env.VITE_API_URL as string | undefined) ??
-  (import.meta.env.DEV ? "http://localhost:8000" : "")
-).replace(/\/+$/, "");
+export const contactSchema = z.object({
+  name: singleLine("Name", 2, 100),
+  email: z.string().trim().max(254).email("Enter a valid email address."),
+  phone: z
+    .string()
+    .trim()
+    .max(30)
+    .refine((v) => v === "" || /^\+?[0-9 ()\-.]{6,25}$/.test(v), "Enter a valid phone number."),
+  company: singleLine("Company", 0, 120),
+  service_id: z.string(),
+  budget: z.string().max(60),
+  message: z.string().trim().min(10, "Tell me a little more (at least 10 characters).").max(5000, "Please keep it under 5000 characters."),
+  preferred_contact: z.enum(["email", "phone", "whatsapp"]),
+  website: z.string().max(500), // honeypot
+});
 
-const REQUEST_TIMEOUT_MS = 15000;
+export type ContactValues = z.infer<typeof contactSchema>;
 
-// Keep in sync with backend/app/schemas.py (the server re-validates everything).
-const LIMITS = {
-  name: { min: 2, max: 100 },
-  subject: { min: 3, max: 150 },
-  message: { min: 10, max: 5000 },
-} as const;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+type Props = { services: Service[]; budgets: string[]; defaultServiceSlug?: string };
 
-type Status = "idle" | "sending" | "success" | "error" | "unconfigured";
-type Field = "name" | "email" | "subject" | "message";
-type FieldErrors = Partial<Record<Field, string>>;
+const field =
+  "w-full rounded-xl border border-border bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-mist/60 outline-none transition focus:border-cyan/60 focus:ring-2 focus:ring-cyan/20 aria-[invalid=true]:border-red-400/70";
 
-function validate(values: Record<Field, string>): FieldErrors {
-  const errors: FieldErrors = {};
-  const name = values.name.trim();
-  const subject = values.subject.trim();
-  const message = values.message.trim();
-  if (name.length < LIMITS.name.min) errors.name = `Please enter your name (at least ${LIMITS.name.min} characters).`;
-  else if (name.length > LIMITS.name.max) errors.name = `Name must be ${LIMITS.name.max} characters or fewer.`;
-  if (!EMAIL_RE.test(values.email.trim())) errors.email = "Please enter a valid email address.";
-  if (subject.length < LIMITS.subject.min) errors.subject = `Please add a subject (at least ${LIMITS.subject.min} characters).`;
-  else if (subject.length > LIMITS.subject.max) errors.subject = `Subject must be ${LIMITS.subject.max} characters or fewer.`;
-  if (message.length < LIMITS.message.min) errors.message = `Please describe your project (at least ${LIMITS.message.min} characters).`;
-  else if (message.length > LIMITS.message.max) errors.message = `Message must be ${LIMITS.message.max} characters or fewer.`;
-  return errors;
-}
+export default function ContactForm({ services, budgets, defaultServiceSlug }: Props) {
+  const startedAt = useRef(Date.now());
+  const [status, setStatus] = useState<{ kind: "idle" | "success" | "error"; message?: string }>({ kind: "idle" });
+  const defaultService = services.find((s) => s.slug === defaultServiceSlug)?.id ?? "";
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: "", email: "", phone: "", company: "", service_id: defaultService, budget: "", message: "", preferred_contact: "email", website: "" },
+  });
 
-function FieldError({ id, text }: { id: string; text?: string }) {
-  if (!text) return null;
-  return (
-    <p id={id} className="mt-1.5 text-xs text-amber-300">
-      {text}
-    </p>
-  );
-}
+  useEffect(() => {
+    if (defaultService) setValue("service_id", defaultService);
+  }, [defaultService, setValue]);
 
-export default function ContactForm() {
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorText, setErrorText] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  // Ref (not state) so a fast double-click can't slip in before a re-render.
-  const inFlight = useRef(false);
-
-  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (inFlight.current) return;
-
-    const form = e.currentTarget;
-    const fd = new FormData(form);
-    const values = {
-      name: String(fd.get("name") ?? ""),
-      email: String(fd.get("email") ?? ""),
-      subject: String(fd.get("subject") ?? ""),
-      message: String(fd.get("message") ?? ""),
-    };
-
-    const errors = validate(values);
-    setFieldErrors(errors);
-    const firstInvalid = (Object.keys(errors) as Field[])[0];
-    if (firstInvalid) {
-      setStatus("idle");
-      setErrorText("");
-      form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
-      return;
-    }
-
-    if (!API_URL) {
-      setStatus("unconfigured");
-      return;
-    }
-
-    inFlight.current = true;
-    setStatus("sending");
-    setErrorText("");
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const onSubmit = async (values: ContactValues) => {
+    setStatus({ kind: "idle" });
     try {
-      const res = await fetch(`${API_URL}/api/contact`, {
+      await api("/api/v1/public/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: values.name.trim(),
-          email: values.email.trim(),
-          subject: values.subject.trim(),
-          message: values.message.trim(),
-          website: String(fd.get("website") ?? ""), // honeypot
-        }),
-        signal: controller.signal,
+        body: {
+          ...values,
+          service_id: values.service_id || null,
+          elapsed_ms: Date.now() - startedAt.current,
+        },
       });
-
-      if (res.ok) {
-        setStatus("success");
-        form.reset(); // only after the server confirmed
-        return;
-      }
-
-      let serverError = "";
-      try {
-        const body = (await res.json()) as { error?: string };
-        serverError = typeof body.error === "string" ? body.error : "";
-      } catch {
-        // non-JSON error body: fall through to the generic text
-      }
-      setErrorText(
-        res.status === 429
-          ? "You've sent a few messages in a row. Please wait a bit and try again."
-          : res.status === 422
-            ? "Some fields didn't pass validation. Please check them and try again."
-            : serverError ||
-                "Something went wrong sending that. Please email me directly below instead.",
-      );
-      setStatus("error");
-    } catch {
-      setErrorText(
-        controller.signal.aborted
-          ? "The server took too long to respond. Please try again, or email me directly below."
-          : "Couldn't reach the server. Check your connection, or email me directly below.",
-      );
-      setStatus("error");
-    } finally {
-      clearTimeout(timer);
-      inFlight.current = false;
+      reset();
+      setStatus({ kind: "success", message: "Thanks! Your message has been received. I usually reply within 1–2 business days." });
+    } catch (err) {
+      // Keep everything the visitor typed so nothing is lost.
+      const message =
+        err instanceof ApiError && err.status === 429
+          ? "You've sent a few messages in a short time. Please wait a minute and try again."
+          : err instanceof ApiError
+            ? err.message
+            : "Could not send your message. Please try again or email me directly.";
+      setStatus({ kind: "error", message });
     }
-  }
+  };
 
-  if (status === "success") {
+  if (status.kind === "success") {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        role="status"
-        className="relative flex flex-col items-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-6 py-8 text-center"
-      >
-        <motion.div
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 260, damping: 18 }}
-        >
-          <CheckCircle2 size={28} className="text-emerald-400" />
-        </motion.div>
-        <p className="font-display text-base font-semibold text-white">
-          Message sent
-        </p>
-        <p className="text-sm text-mist">
-          Thanks — I'll get back to you within a day.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setFieldErrors({});
-            setStatus("idle");
-          }}
-          className="mt-2 text-sm text-cyan underline-offset-2 hover:underline"
-        >
+      <div role="status" className="flex flex-col items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/5 p-8 text-center">
+        <CheckCircle2 className="text-emerald-400" size={32} aria-hidden />
+        <p className="font-medium text-white">Message sent</p>
+        <p className="max-w-md text-sm text-mist">{status.message}</p>
+        <button type="button" onClick={() => setStatus({ kind: "idle" })} className="mt-2 text-sm text-cyan hover:text-white">
           Send another message
         </button>
-      </motion.div>
+      </div>
     );
   }
 
-  const sending = status === "sending";
+  const err = (name: keyof ContactValues) =>
+    errors[name] ? (
+      <p id={`${name}-error`} className="mt-1.5 text-xs text-red-300">
+        {errors[name]?.message as string}
+      </p>
+    ) : null;
+  const a11y = (name: keyof ContactValues) => ({
+    id: name,
+    "aria-invalid": errors[name] ? true : undefined,
+    "aria-describedby": errors[name] ? `${name}-error` : undefined,
+  });
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      aria-busy={sending}
-      className="relative text-left"
-    >
-      {/* Honeypot: off-screen and hidden from assistive tech; the server drops any submission that fills it */}
-      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website">Leave this field empty</label>
-        <input id="website" type="text" name="website" tabIndex={-1} autoComplete="off" />
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-4 sm:grid-cols-2" aria-label="Contact form">
+      <div>
+        <label htmlFor="name" className="mb-1.5 block text-sm text-white/90">Name *</label>
+        <input {...register("name")} {...a11y("name")} autoComplete="name" className={field} />
+        {err("name")}
       </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-mist">
-            Name
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            autoComplete="name"
-            maxLength={LIMITS.name.max}
-            aria-invalid={fieldErrors.name ? true : undefined}
-            aria-describedby={fieldErrors.name ? "name-error" : undefined}
-            placeholder="Your name"
-            className={inputClass}
-          />
-          <FieldError id="name-error" text={fieldErrors.name} />
+      <div>
+        <label htmlFor="email" className="mb-1.5 block text-sm text-white/90">Email *</label>
+        <input {...register("email")} {...a11y("email")} type="email" autoComplete="email" className={field} />
+        {err("email")}
+      </div>
+      <div>
+        <label htmlFor="phone" className="mb-1.5 block text-sm text-white/90">Phone <span className="text-mist">(optional)</span></label>
+        <input {...register("phone")} {...a11y("phone")} type="tel" autoComplete="tel" className={field} />
+        {err("phone")}
+      </div>
+      <div>
+        <label htmlFor="company" className="mb-1.5 block text-sm text-white/90">Company <span className="text-mist">(optional)</span></label>
+        <input {...register("company")} {...a11y("company")} autoComplete="organization" className={field} />
+        {err("company")}
+      </div>
+      <div>
+        <label htmlFor="service_id" className="mb-1.5 block text-sm text-white/90">Service needed</label>
+        <select {...register("service_id")} {...a11y("service_id")} className={field}>
+          <option value="">Not sure yet / something else</option>
+          {services.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.title}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="budget" className="mb-1.5 block text-sm text-white/90">Budget <span className="text-mist">(optional)</span></label>
+        <select {...register("budget")} {...a11y("budget")} className={field}>
+          <option value="">Prefer not to say</option>
+          {budgets.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="message" className="mb-1.5 block text-sm text-white/90">Project description *</label>
+        <textarea {...register("message")} {...a11y("message")} rows={6} className={field} placeholder="What are you building, who is it for, and when do you need it?" />
+        {err("message")}
+      </div>
+      <fieldset className="sm:col-span-2">
+        <legend className="mb-2 text-sm text-white/90">Preferred contact method</legend>
+        <div className="flex flex-wrap gap-3">
+          {(["email", "phone", "whatsapp"] as const).map((m) => (
+            <label key={m} className="flex cursor-pointer items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-mist has-[:checked]:border-cyan/60 has-[:checked]:text-white">
+              <input type="radio" value={m} {...register("preferred_contact")} className="accent-cyan-400" />
+              {m === "whatsapp" ? "WhatsApp" : m[0].toUpperCase() + m.slice(1)}
+            </label>
+          ))}
         </div>
-        <div>
-          <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-mist">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            maxLength={254}
-            aria-invalid={fieldErrors.email ? true : undefined}
-            aria-describedby={fieldErrors.email ? "email-error" : undefined}
-            placeholder="you@company.com"
-            className={inputClass}
-          />
-          <FieldError id="email-error" text={fieldErrors.email} />
-        </div>
+      </fieldset>
+      {/* Honeypot: hidden from people and assistive tech; bots fill it in. */}
+      <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="website">Website</label>
+        <input id="website" tabIndex={-1} autoComplete="off" {...register("website")} />
       </div>
-
-      <div className="mt-4">
-        <label htmlFor="subject" className="mb-1.5 block text-xs font-medium text-mist">
-          Subject
-        </label>
-        <input
-          id="subject"
-          name="subject"
-          type="text"
-          required
-          maxLength={LIMITS.subject.max}
-          aria-invalid={fieldErrors.subject ? true : undefined}
-          aria-describedby={fieldErrors.subject ? "subject-error" : undefined}
-          placeholder="e.g. Business website, AI chatbot, API integration"
-          className={inputClass}
-        />
-        <FieldError id="subject-error" text={fieldErrors.subject} />
+      {status.kind === "error" && (
+        <p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 sm:col-span-2">
+          {status.message}
+        </p>
+      )}
+      <div className="sm:col-span-2">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {isSubmitting ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Send size={16} aria-hidden />}
+          {isSubmitting ? "Sending…" : "Send message"}
+        </button>
       </div>
-
-      <div className="mt-4">
-        <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-mist">
-          Project description
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          rows={4}
-          maxLength={LIMITS.message.max}
-          aria-invalid={fieldErrors.message ? true : undefined}
-          aria-describedby={fieldErrors.message ? "message-error" : undefined}
-          placeholder="What are you building? Rough scope, timeline, budget range — whatever you've got."
-          className={`resize-none ${inputClass}`}
-        />
-        <FieldError id="message-error" text={fieldErrors.message} />
-      </div>
-
-      <AnimatePresence>
-        {(status === "error" || status === "unconfigured") && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0, x: [0, -6, 6, -4, 4, 0] }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            role="alert"
-            className="mt-4 flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
-          >
-            <AlertCircle size={16} className="mt-0.5 shrink-0" />
-            {status === "unconfigured"
-              ? "The contact form isn't connected to a server yet. Please email me directly below instead."
-              : errorText}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        type="submit"
-        disabled={sending}
-        aria-disabled={sending}
-        whileHover={{ scale: sending ? 1 : 1.02 }}
-        whileTap={{ scale: sending ? 1 : 0.96 }}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet to-cyan px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet/30 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
-      >
-        {sending ? (
-          <>
-            <Loader2 size={16} className="animate-spin" />
-            Sending...
-          </>
-        ) : (
-          <>
-            <Send size={16} />
-            Send message
-          </>
-        )}
-      </motion.button>
     </form>
   );
 }

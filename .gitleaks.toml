@@ -1,0 +1,11 @@
+# Secret scanning config. Extends the default rules; only test fixtures (fake keys/passwords
+# that exist to exercise validation) are allowlisted. Never allowlist real configuration files.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test-only fixtures"
+paths = [
+  '''backend/tests/.*\.py''',
+  '''frontend/playwright\.config\.ts''',
+]

@@ -48,7 +48,15 @@ def _project_apply(db: Session, obj: Project, data: dict[str, Any], auth: Auth) 
         for t in techs:
             if t.lower() not in {x.lower() for x in seen}:
                 seen.append(t)
-        obj.technology_links = [ProjectTechnology(name=name, position=i) for i, name in enumerate(seen)]
+        # Reuse existing rows: the unit of work inserts new rows before deleting orphans, so
+        # recreating a row with the same (project_id, name) would hit the unique constraint.
+        existing = {link.name: link for link in obj.technology_links}
+        links = []
+        for i, name in enumerate(seen):
+            link = existing.get(name) or ProjectTechnology(name=name)
+            link.position = i
+            links.append(link)
+        obj.technology_links = links
     gallery = data.pop("gallery", None)
     if gallery is not None:
         ids = [uuid.UUID(str(g["media_id"])) for g in gallery]

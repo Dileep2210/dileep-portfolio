@@ -11,7 +11,8 @@ Conventions: UUID primary keys (`gen_random_uuid()` not required — generated i
 | `permissions` | code (unique, e.g. `projects:write`) | Seeded by migration. |
 | `role_permissions` | role_id, permission_id (PK pair) | CASCADE on role/permission delete. |
 | `user_roles` | user_id, role_id (PK pair) | CASCADE on user delete. |
-| `refresh_tokens` | user_id, family_id, token_hash (unique, SHA-256), expires_at, revoked_at, replaced_by_id, reauth_at, ip, user_agent | Rotation + reuse detection by family. |
+| `auth_sessions` | user_id, expires_at, revoked_at, revoked_reason, reauth_at, last_seen_at, ip, user_agent | One signed-in device. Access tokens carry its id and are rejected once it is revoked. |
+| `refresh_tokens` | session_id, token_hash (unique, SHA-256), expires_at, used_at | Rotated on every refresh; presenting a used token (outside a 20 s multi-tab grace) revokes the whole session. |
 | `auth_tokens` | user_id, purpose (`password_reset` / `invite`), token_hash (unique), expires_at, used_at | One-time, hashed. |
 | `audit_logs` | actor_user_id (SET NULL), action, entity_type, entity_id, ip, user_agent, details JSONB, created_at | Append-only; indexed on created_at, actor, entity. |
 
