@@ -14,6 +14,8 @@ type AuthValue = {
 
 const AuthContext = createContext<AuthValue | null>(null);
 
+const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/reset-password", "/admin/accept-invite"];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -37,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () =>
       onSessionExpired(() => {
         qc.setQueryData(["me"], null);
-        if (location.pathname.startsWith("/admin") && !location.pathname.startsWith("/admin/login")) {
+        // Only protected pages redirect. Sign-in, password reset and invitation pages are used while
+        // signed out, so a failed session check there must not navigate away mid-form.
+        if (location.pathname.startsWith("/admin") && !PUBLIC_ADMIN_PATHS.some((p) => location.pathname.startsWith(p))) {
           navigate(`/admin/login?expired=1&next=${encodeURIComponent(location.pathname)}`, { replace: true });
         }
       }),

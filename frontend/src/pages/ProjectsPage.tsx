@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Briefcase, FlaskConical, Search } from "lucide-react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import CoverImage from "../components/CoverImage";
 import PageHeader from "../components/PageHeader";
 import Seo from "../components/Seo";
 import { CardGridSkeleton, EmptyState, ErrorState } from "../components/States";
+import { useUrlFilters } from "../lib/useUrlFilters";
 import { useProjectCategories, useProjects, useProjectTechnologies } from "../lib/queries";
 import type { Project } from "../lib/types";
 
@@ -51,7 +52,7 @@ export function ProjectCard({ project }: { project: Project }) {
 }
 
 export default function ProjectsPage() {
-  const [params, setParams] = useSearchParams();
+  const { params, update } = useUrlFilters();
   const q = params.get("q") ?? "";
   const category = params.get("category") ?? "";
   const tech = params.get("tech") ?? "";
@@ -67,14 +68,6 @@ export default function ProjectsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  function update(next: Record<string, string>) {
-    const p = new URLSearchParams(params);
-    for (const [k, v] of Object.entries(next)) {
-      if (v) p.set(k, v);
-      else p.delete(k);
-    }
-    setParams(p, { replace: true });
-  }
 
   const { data, isLoading, isFetching, error, refetch } = useProjects({ q, category, tech, page, page_size: PAGE_SIZE });
   const categories = useProjectCategories().data ?? [];

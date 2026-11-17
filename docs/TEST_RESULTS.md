@@ -6,9 +6,9 @@ Run on 2026-11-16, local Windows 11 machine, PostgreSQL 17 (Docker), Python 3.13
 
 | Suite | Total | Passed | Failed | Skipped |
 |---|---|---|---|---|
-| Backend — pytest (real PostgreSQL, real Alembic migration) | 193 | 193 | 0 | 0 |
+| Backend — pytest (real PostgreSQL, real Alembic migration) | 194 | 194 | 0 | 0 |
 | Frontend — Vitest + React Testing Library | 20 | 20 | 0 | 0 |
-| End-to-end — Playwright (real API + DB + production build) | 19 | 19 | 0 | 0 |
+| End-to-end — Playwright (real API + DB + production build) | 42 | 42 | 0 | 0 |
 | Type-check (`tsc -b`) | — | pass | — | — |
 | Lint (`oxlint`) | — | 0 errors | — | 22 warnings¹ |
 | Production build (`vite build`) | — | pass | — | — |
@@ -57,6 +57,21 @@ Migration was also verified manually: `alembic upgrade head` → `downgrade base
 | 24 | Logout → admin inaccessible, `/auth/me` 401 |
 | + 3 | Mobile 375px, tablet 820px, desktop 1440px: 7 pages each, no horizontal overflow, no console errors, mobile menu + Escape |
 | + 1 | robots.txt, dynamic sitemap.xml, resume.pdf served |
+
+## Full admin + public walk-through (`e2e/full.spec.ts`) — 23 tests, added 2026-11-17
+
+Drives every admin module through the UI and fails on any page error, console error or 5xx, reporting unexpected 4xx: all 20 sidebar modules; dashboard links; list search/sort/pagination/filters; media upload, alt text, rejected SVG, in-use protection; project with cover + gallery from the picker, Markdown preview, delete/restore; server validation errors keep input; priced service; skill + skill category; experience on About; blog category/tags/schedule/related/tag links/search; navigation, social link, SEO and homepage JSON edits; resume switch; profile + website settings (incl. invalid email); leads status/follow-up/notes/export with re-auth/delete; public testimonial → approve → visible with rating; invite → accept → role change → deactivate; audit filter; 2FA enrol, code sign-in, remote session sign-out, 2FA off; password change; forgot password; viewer read-only form; every public route + 404s; project filters + pagination; mobile menu, footer, skip link, CTAs; contact validation. Both E2E files were run together twice: 42/42 passed both times.
+
+### Bugs found by this walk-through (root cause → fix)
+
+| Bug | Root cause | Fix |
+|---|---|---|
+| Blog, Navigation, Social links and Resume admin lists showed "Could not load" (422 Unsupported sort field) when reached from the sidebar | All modules render the same list component; React reused one instance, so the previous module's table state (sort field) leaked into the next | Each resource route gets its own component instance (`key={config.key}`) |
+| Admin sort by title put "Élané" and lowercase titles after "Z" | PostgreSQL default collation compares bytes | Text sorts use ICU collation `und-x-icu`; regression test added |
+| Invitation / reset-password pages redirected to the login page mid-form | The "session expired" handler redirected from every `/admin` page except login, and fires on signed-out visitors' session check | Handler ignores the public admin pages (login, reset password, accept invite) |
+| Clearing a project/blog filter and then typing in search brought the old filter back | The debounced search rebuilt the URL from a stale snapshot of the query parameters | Shared `useUrlFilters` updates from the live URL |
+| Pressing Escape on a confirmation also closed the dialog underneath | Every open dialog handled Escape | Only the topmost dialog reacts |
+| First Tab on page load skipped "Skip to main content" | Focus was moved to `<main>` on the initial render, not only on route changes | Focus moves only on later navigations |
 
 ## Security scans
 

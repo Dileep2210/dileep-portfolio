@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import BackgroundFX from "../components/BackgroundFX";
@@ -21,8 +21,12 @@ export default function PublicLayout() {
   const location = useLocation();
   const name = site?.settings.developer_name ?? "Dileep Kumar Panchumarthi";
 
-  // Move focus to the main region on route change so screen readers announce the new page.
+  // Move focus to the main region on route *changes* so screen readers announce the new page.
+  // Not on the first load: that would skip the "Skip to main content" link for keyboard users.
+  const firstPath = useRef(location.pathname);
   useEffect(() => {
+    if (location.pathname === firstPath.current) return;
+    firstPath.current = "";
     document.getElementById("main")?.focus({ preventScroll: true });
   }, [location.pathname]);
 

@@ -126,6 +126,9 @@ export function Dialog({ open, onClose, title, children, wide }: { open: boolean
     const node = ref.current;
     node?.querySelector<HTMLElement>("input, select, textarea, button:not([data-close])")?.focus();
     const onKey = (e: KeyboardEvent) => {
+      // Dialogs can stack (a confirmation over a detail view): only the topmost one reacts.
+      const open = document.querySelectorAll('[role="dialog"]');
+      if (open[open.length - 1] !== node) return;
       if (e.key === "Escape") onClose();
       if (e.key === "Tab" && node) {
         const items = node.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');

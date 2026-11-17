@@ -145,9 +145,11 @@ function AdminLayout() {
 }
 
 function resourceRoutes(configs: ResourceConfig[]) {
+  // key per resource: every module renders the same component, so without it React would reuse one
+  // instance and carry table state (e.g. the sort field) from one module into the next.
   return configs.flatMap((c) => [
-    <Route key={`${c.key}-list`} path={c.key} element={<RequireAuth perm={`${c.perm}:read`}><ResourceListPage config={c} /></RequireAuth>} />,
-    <Route key={`${c.key}-edit`} path={`${c.key}/:id`} element={<RequireAuth perm={`${c.perm}:read`}><ResourceEditPage config={c} /></RequireAuth>} />,
+    <Route key={`${c.key}-list`} path={c.key} element={<RequireAuth perm={`${c.perm}:read`}><ResourceListPage key={c.key} config={c} /></RequireAuth>} />,
+    <Route key={`${c.key}-edit`} path={`${c.key}/:id`} element={<RequireAuth perm={`${c.perm}:read`}><ResourceEditPage key={c.key} config={c} /></RequireAuth>} />,
   ]);
 }
 

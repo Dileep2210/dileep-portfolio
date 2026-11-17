@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Calendar, Check, Clock, Link2, Search } from "lucide-react";
 import { FaLinkedin, FaXTwitter } from "react-icons/fa6";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useParams } from "react-router";
 import CoverImage from "../components/CoverImage";
 import Markdown from "../components/Markdown";
 import PageHeader from "../components/PageHeader";
@@ -9,6 +9,7 @@ import Seo from "../components/Seo";
 import { CardGridSkeleton, EmptyState, ErrorState, Skeleton } from "../components/States";
 import { ApiError } from "../lib/api";
 import { formatDate } from "../lib/format";
+import { useUrlFilters } from "../lib/useUrlFilters";
 import { useBlog, useBlogCategories, useBlogPost, useSite } from "../lib/queries";
 import type { BlogPost } from "../lib/types";
 import NotFoundPage from "./NotFoundPage";
@@ -37,20 +38,12 @@ function PostCard({ post }: { post: BlogPost }) {
 }
 
 export function BlogPage() {
-  const [params, setParams] = useSearchParams();
+  const { params, update } = useUrlFilters();
   const q = params.get("q") ?? "";
   const category = params.get("category") ?? "";
   const tag = params.get("tag") ?? "";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const [search, setSearch] = useState(q);
-  const update = (next: Record<string, string>) => {
-    const p = new URLSearchParams(params);
-    for (const [k, v] of Object.entries(next)) {
-      if (v) p.set(k, v);
-      else p.delete(k);
-    }
-    setParams(p, { replace: true });
-  };
   useEffect(() => {
     const id = setTimeout(() => search !== q && update({ q: search, page: "" }), 300);
     return () => clearTimeout(id);

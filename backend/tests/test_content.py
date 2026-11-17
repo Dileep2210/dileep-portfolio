@@ -103,6 +103,14 @@ def test_pagination_and_sorting(admin):
     assert admin.get(f"{A}/skill-categories", params={"page_size": 1000}).status_code == 422
 
 
+def test_text_sorting_is_human_order(admin):
+    # Byte-order collation put accented and lowercase titles after "Z"; ICU sorts them naturally.
+    for title in ["Zebra Site", "Élané Salon", "apple shop", "Soda"]:
+        admin.post(f"{A}/projects", json={"title": title})
+    titles = [p["title"] for p in admin.get(f"{A}/projects", params={"sort": "title"}).json()["items"]]
+    assert titles == ["apple shop", "Élané Salon", "Soda", "Zebra Site"]
+
+
 def test_service_crud_and_public(admin, client):
     s = admin.post(f"{A}/services", json={
         "title": "API Integration", "summary": "Connect things.", "features": ["Webhooks"], "tech_stack": ["FastAPI"],

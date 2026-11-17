@@ -96,6 +96,10 @@ def apply_listing(
     if name not in sorts:
         raise AppError("Unsupported sort field.", code="invalid_sort", status_code=422)
     col = getattr(model, name)
+    if isinstance(col.type, String):
+        # The database default collation compares bytes ("Élané" after "Zed", "apple" after "Zed").
+        # ICU's root collation sorts the way people expect; it ships with the official Postgres images.
+        col = col.collate("und-x-icu")
     stmt = stmt.order_by(col.desc() if desc else col.asc(), model.id)
     return stmt
 
